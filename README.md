@@ -20,6 +20,7 @@ Coginitics' Spec-Driven Development (SDD) toolkit — a set of Claude Code comma
 ├── spec.md            ← requirements spec template
 ├── system-design.md   ← system design / API contract / component breakdown template
 ├── plan.md            ← implementation plan template
+├── quick-plan.md       ← combined spec+plan template for /codely.quick
 └── follow-up.md        ← post-delivery follow-up template
 
 .claude/includes/
