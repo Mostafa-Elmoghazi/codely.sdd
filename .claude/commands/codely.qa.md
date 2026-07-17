@@ -23,9 +23,9 @@ Verify every task across the plan is complete, then work through the plan's QA P
 ## Phase 0 — Resolve the ticket and plan document
 
 1. Read `CLAUDE.md` if present.
-2. Determine `ticketId`: current branch matches a phase branch `<ticketId>/<phaseSlug>`, a quick branch `<ticketId>/<slug>/quick`, or a docs branch `<ticketId>/<slug>/feature` → extract it. Trunk, or neither pattern matches → use `$ARGUMENTS` if given, else ask. Don't guess.
-3. Locate `.specs/<ticketId>_*`. Missing → stop, recommend `/codely.spec` or `/codely.quick`.
-4. The directory has `quick-plan.md` → that's the plan document for this run. Else it has `plan.md` → that's the plan document. Neither → stop, tell the user to run `/codely.plan` or `/codely.quick` first.
+2. Determine `ticketId`: current branch matches a phase branch `<ticketId>/<phaseSlug>`, a quick branch `<ticketId>/<slug>/quick`, a bug-fix branch `<ticketId>/<slug>/bug-fix`, or a docs branch `<ticketId>/<slug>/feature` → extract it. Trunk, or neither pattern matches → use `$ARGUMENTS` if given, else ask. Don't guess.
+3. Locate `.specs/<ticketId>_*`. Missing → stop, recommend `/codely.spec`, `/codely.quick`, or `/codely.bug-fix`.
+4. The directory has `quick-plan.md` → that's the plan document for this run. Else it has `bug-fix-plan.md` → that's the plan document (its Verification section's checklist items are this run's QA Plan). Else it has `plan.md` → that's the plan document. Neither → stop, tell the user to run `/codely.plan`, `/codely.quick`, or `/codely.bug-fix` first.
 5. Parse every task across every phase (or the single phase, for `quick-plan.md`). Any unchecked → tell the user which, AskUserQuestion — stop and finish implementation first (recommend `/codely.implement`) / proceed with QA anyway (confirm — unusual).
 6. Current branch isn't the branch those tasks were implemented on (the last unmerged phase branch, or the quick branch) → warn, ask whether to check it out or continue anyway.
 
@@ -33,12 +33,15 @@ Verify every task across the plan is complete, then work through the plan's QA P
 
 1. `spec.md` present (full flow) → read it.
 2. `system-design.md` present → read it.
-3. Read the plan document in full, including its QA Plan section.
-4. `follow-up.md` present → read it, for awareness only.
+3. `design.md` present → read it, to verify the implementation matches the approved screens.
+4. Read the plan document in full, including its QA Plan section.
+5. `follow-up.md` present → read it, for awareness only.
 
 ## Phase 2 — Classify QA Plan items
 
 For each QA Plan checklist item, decide: machine-verifiable (a concrete, runnable check — e.g. "all unit tests pass," "build succeeds," "lint is clean," a specific behavior scriptable via a command or targeted grep/read) vs. needs human judgment (visual/UX, business-logic nuance, anything you can't conclusively check yourself). When genuinely unsure, treat it as needing human judgment — don't guess a pass.
+
+Plan document is `bug-fix-plan.md` → also confirm its Verification → Regression Test evidence (commit references plus before/after output) is present and internally consistent before walking the rest of the checklist. Treat a missing or inconsistent record as a failed item, not something to wave through.
 
 ## Phase 3 — Run the machine-verifiable items
 

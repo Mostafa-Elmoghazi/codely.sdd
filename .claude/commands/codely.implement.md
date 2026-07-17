@@ -39,8 +39,9 @@ Implement the next (or a specified) phase from `.specs/<ticketId>_<slug>/plan.md
 
 1. Read `.specs/<ticketId>_<slug>/spec.md`.
 2. `system-design.md` present → read it.
-3. `follow-up.md` present → read it. Don't silently redo anything already deferred there.
-4. Re-read the target phase's Tasks and Key Files from `plan.md`.
+3. `design.md` present → read it, along with its referenced `design/*.html` mockups — these are the approved markup/structure/states to implement against.
+4. `follow-up.md` present → read it. Don't silently redo anything already deferred there.
+5. Re-read the target phase's Tasks and Key Files from `plan.md`.
 
 ## Phase 2 — Prepare the phase branch
 

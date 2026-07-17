@@ -23,7 +23,7 @@ Triage `.specs/<ticketId>_<slug>/follow-up.md` one item at a time. Follow the ph
 ## Phase 0 — Resolve the ticket and follow-up file
 
 1. Read `CLAUDE.md` if present.
-2. Determine `ticketId`: current branch matches a phase branch `<ticketId>/<phaseSlug>`, a quick branch `<ticketId>/<slug>/quick`, or a docs branch `<ticketId>/<slug>/feature` → extract it. Trunk, or neither pattern matches → use `$ARGUMENTS` if given, else ask. Don't guess.
+2. Determine `ticketId`: current branch matches a phase branch `<ticketId>/<phaseSlug>`, a quick branch `<ticketId>/<slug>/quick`, a bug-fix branch `<ticketId>/<slug>/bug-fix`, or a docs branch `<ticketId>/<slug>/feature` → extract it. Trunk, or neither pattern matches → use `$ARGUMENTS` if given, else ask. Don't guess.
 3. Locate `.specs/<ticketId>_*`. Missing → stop, tell the user there's nothing to triage for this ticket.
 4. `.specs/<ticketId>_<slug>/follow-up.md` missing → tell the user there are no follow-up items for this ticket, stop.
 5. Parse each item's Status: Open / Promoted (pending ticket ID) / Triaged.
@@ -31,7 +31,7 @@ Triage `.specs/<ticketId>_<slug>/follow-up.md` one item at a time. Follow the ph
 
 ## Phase 1 — Load context
 
-1. Read `spec.md` (if present) and the plan document (`plan.md` or `quick-plan.md`) — needed to draft good ticket descriptions and Drop-reason suggestions.
+1. Read `spec.md` (if present) and the plan document (`plan.md`, `quick-plan.md`, or `bug-fix-plan.md`) — needed to draft good ticket descriptions and Drop-reason suggestions.
 2. Note whether a task-tracking MCP connector (Jira/Atlassian, Linear, Asana, monday.com, etc.) is available and authorized in this session.
 
 ## Phase 2 — Resolve pending promotions

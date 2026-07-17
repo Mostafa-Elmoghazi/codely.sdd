@@ -32,7 +32,8 @@ Turn an approved spec into a phased implementation plan at `.specs/<ticketId>_<s
 
 1. Read `.specs/<ticketId>_<slug>/spec.md`.
 2. `.specs/<ticketId>_<slug>/system-design.md` present → read it too.
-3. `.specs/<ticketId>_<slug>/plan.md` already exists → summarize it, AskUserQuestion — Resume/revise (edit in place, skip re-drafting from scratch) / Start over (regenerate) / Cancel.
+3. `.specs/<ticketId>_<slug>/design.md` present → read it too, along with its referenced `design/*.html` mockups — these define the screens, components, and states to plan for.
+4. `.specs/<ticketId>_<slug>/plan.md` already exists → summarize it, AskUserQuestion — Resume/revise (edit in place, skip re-drafting from scratch) / Start over (regenerate) / Cancel.
 
 ## Phase 2 — Size the work
 
