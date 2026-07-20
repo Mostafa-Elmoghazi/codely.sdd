@@ -79,4 +79,4 @@ Glob/Grep/Read the feature area — similar features, conventions, tests, relate
 4. Otherwise: switch to trunk if needed; pull only if it tracks a remote.
 5. Create/checkout `<ticketId>/<slug>/feature`. If it already exists, check it out and note how far ahead of trunk it is.
 6. Never push.
-7. Confirm: spec path, branch name, current branch. Tell the user to run `/clear` then `/codely.plan` next.
+7. Confirm: spec path, branch name, current branch. Tell the user to run `/clear` then, optionally, `/codely.sys-design` (architecture/data/API design) and/or `/codely.ui` (screen mockups) — or straight to `/codely.plan` if neither is needed.

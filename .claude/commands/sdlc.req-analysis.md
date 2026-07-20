@@ -27,44 +27,35 @@ Together these are the blueprint the System Design phase (`/sdlc.system-design`)
 
 1. Glob `.sdlc/srs.md` and `.sdlc/use-case-model.md`.
 2. **Both missing:** proceed to Phase 2.
-3. **Either found:** read and summarize them, AskUserQuestion — Resume/revise (edit in place, skip re-drafting from scratch) / Start over (regenerate both) / Cancel.
+3. **Either found:** read whichever exist(s), including their `## Status` checklists.
+   - **Every found topic checked:** summarize both, AskUserQuestion — Resume/revise (edit in place, skip re-drafting from scratch) / Start over (regenerate both) / Cancel.
+   - **Some topics unchecked (a paused mid-interview session):** summarize what's already settled and list what's still open, AskUserQuestion — Continue (resume Phase 3 at the first unchecked topic, keeping everything already settled) / Start over (discard both drafts, redo from scratch) / Cancel.
 
 ## Phase 2 — Context gathering
 
 Glob/Grep/Read the repo for existing signal: `README.md`, existing `docs/`, and any prior ticket-level specs under `.specs/` (these can hint at actors, use cases, or conventions already implemented). Don't ask the user what the repo already answers.
 
-## Phase 3 — Interview the user (rounds)
+## Phase 3 — Interview & draft (topic by topic)
 
-**Mandatory — don't draft either artifact until actors, use cases, functional/non-functional requirements, and workflows are all clear.**
+**Mandatory — don't move to Phase 4 until every topic below is checked off.**
 
-1. List open questions from the charter/plan + Phase 2 findings, across the core requirements-analysis activities:
-   - **Actors** — who or what interacts with the system (end users, admins, external systems).
-   - **Use Cases** — the key interactions each actor has with the system, and their goals.
-   - **User Stories** — concrete "as a ⟨role⟩, I want ⟨capability⟩, so that ⟨benefit⟩" statements.
-   - **Process Workflows** — step-by-step flows for key or cross-actor processes.
-   - **Functional Requirements** — specific, testable behaviors.
-   - **Non-Functional Requirements** — performance, security, compliance, accessibility, scalability, etc.
-   - **Validation** — confirm the above aligns with the charter's goals and scope.
-2. AskUserQuestion in rounds of up to 4-5 (cap is 4/call — split a 5-question round across two calls). Clear labels, short trade-offs.
-3. Digest each round; run another if new questions surface.
-4. On "you decide," state a recommendation and get explicit confirmation — record it under Decisions.
+Work through the topics below **one at a time, in the order listed** — each topic's answer is written to disk as soon as it's resolved, so the work is never lost mid-interview and a later session can pick up exactly where this one stopped.
 
-## Phase 4 — Write the use-case model
+For each topic:
+1. Ask about it via AskUserQuestion round(s) (cap 4/call — split a 5-question topic across two calls). Digest answers; ask a follow-up round if new questions surface. On "you decide," state a recommendation and get explicit confirmation — record it under that artifact's Decisions (or Notes & Decisions for the use-case model).
+2. If the topic turns out to be multi-part or is taking several rounds, split its Status entry into indented sub-items (see the template's Status section) and resolve them one at a time.
+3. The first time a topic belonging to a given artifact is resolved, create that artifact from its template (`.claude/templates/use-case-model.md` / `.claude/templates/srs.md`) with its `## Status` checklist intact. Write/update that topic's section, then check it off (and its parent, if all sub-items are done).
+4. A later topic changes an earlier decision → update that earlier section too; its Status box stays checked (the box tracks "resolved at least once," not "immutable").
+5. Move to the next topic.
 
-1. Fill `.claude/templates/use-case-model.md` placeholders.
-2. Mandatory: Actors, Use Cases (with the Mermaid use-case/system-boundary diagram), Process Workflows (with Mermaid sequence diagrams).
-3. Optional — omit the whole section if empty, never write "N/A": User Stories, Notes & Decisions.
-4. Write to `.sdlc/use-case-model.md`.
+**`.sdlc/use-case-model.md` topics** (in order): Actors, Use Cases (with the Mermaid use-case/system-boundary diagram), User Stories, Process Workflows (with Mermaid sequence diagrams).
+**`.sdlc/srs.md` topics** (in order, after the use-case model's topics): Functional Requirements, Non-Functional Requirements, Validation — confirm the drafted use cases and requirements align with the charter's goals and scope; use this pass to also (re)synthesize the SRS's Purpose & Scope and Traceability sections from everything gathered so far, since those aren't interviewed as their own topics.
 
-## Phase 5 — Write the SRS
+User Stories is optional content (omit the section if empty) but stays a tracked topic — check it off once considered, whether or not it produced content separate from the use cases.
 
-1. Fill `.claude/templates/srs.md` placeholders.
-2. Mandatory: Purpose & Scope, Functional Requirements, Non-Functional Requirements, Traceability (map requirements back to the charter's goals).
-3. Optional — omit the whole section if empty, never write "N/A": Assumptions & Constraints, Decisions.
-4. Write to `.sdlc/srs.md`.
+## Phase 4 — Approval loop
 
-## Phase 6 — Approval loop
-
-1. Ask the user to review both `.sdlc/use-case-model.md` and `.sdlc/srs.md` — approve or request changes, loop until approved.
-2. No git action follows approval — this command never branches, commits, or pushes.
-3. Confirm both artifact paths. Tell the user to run `/clear` then `/sdlc.system-design` next to turn these into a system design.
+1. Confirm every Status item across both artifacts is checked — any left open, return to Phase 3 for just those topics.
+2. Ask the user to review both `.sdlc/use-case-model.md` and `.sdlc/srs.md` — approve or request changes, loop until approved.
+3. No git action follows approval — this command never branches, commits, or pushes.
+4. Confirm both artifact paths. Tell the user to run `/clear` then `/sdlc.system-design` next to turn these into a system design.

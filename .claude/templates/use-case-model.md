@@ -2,6 +2,15 @@
 
 **Charter:** `.sdlc/project-charter.md`
 
+## Status
+
+*Tracks interview progress across sessions so work can pause and resume without redoing settled topics. Check off each topic as it's resolved — safe to ignore once every box is checked. If a topic turns out to be multi-part (spans several question rounds or sessions), split it into indented sub-items and check those off individually; check the parent once all its sub-items (or the topic as a whole) are settled. Don't delete this section.*
+
+- [ ] Actors
+- [ ] Use Cases
+- [ ] User Stories
+- [ ] Process Workflows
+
 ## Actors
 
 *Mandatory. Who or what interacts with the system (end users, admins, external systems).*

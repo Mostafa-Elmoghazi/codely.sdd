@@ -3,6 +3,14 @@
 **Charter:** `.sdlc/project-charter.md`
 **Use-Case Model:** `.sdlc/use-case-model.md`
 
+## Status
+
+*Tracks interview progress across sessions so work can pause and resume without redoing settled topics. Check off each topic as it's resolved — safe to ignore once every box is checked. If a topic turns out to be multi-part (spans several question rounds or sessions), split it into indented sub-items and check those off individually; check the parent once all its sub-items (or the topic as a whole) are settled. Don't delete this section. Purpose & Scope and Traceability aren't tracked here — they're synthesized from the charter and from the topics below, not interviewed separately.*
+
+- [ ] Functional Requirements
+- [ ] Non-Functional Requirements
+- [ ] Validation
+
 ## Purpose & Scope
 
 *Mandatory. What this SRS covers, and how it traces back to the charter's goals and scope.*
