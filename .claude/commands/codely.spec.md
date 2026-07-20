@@ -7,9 +7,9 @@ disable-model-invocation: true
 
 # codely.spec
 
-> **Scope guardrail:** never writes or modifies application code, and never touches files outside `.claude/includes/ticket-format.md` and `.specs/`. Outputs are the spec file, and — after approval — a new local branch. Phase 4 exploration is read-only.
+> **Scope guardrail:** never writes or modifies application code, and never touches files outside `.claude/includes/ticket-format.md` and `.specs/`. Outputs are the spec file and — after approval — a new local branch with the spec committed to it; `ticket-format.md`, if drafted, is committed immediately as shared project config, independent of the spec's own approval gate. Phase 4 exploration is read-only.
 
-Turn a ticket ID + brief description into an approved spec under `.specs/`, then cut the ticket's local branch. Follow the phases in order. No git changes before approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
+Turn a ticket ID + brief description into an approved spec under `.specs/`, then cut the ticket's local branch with the spec committed to it. Follow the phases in order. No git changes before the spec's approval, except `ticket-format.md` (Phase 1), which is shared project config committed immediately once the user confirms it. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
 ## Context
 
@@ -28,7 +28,7 @@ Turn a ticket ID + brief description into an approved spec under `.specs/`, then
 ## Phase 1 — Load the ticket ID format
 
 1. Read `.claude/includes/ticket-format.md`.
-2. **Missing** (first run): tell the user, then AskUserQuestion — "describe the format, I'll draft the file" vs. "I'll set it up myself, stop here." If they describe it, ask the scheme (JIRA/GitHub/Linear/none/other), write the file, continue. Otherwise stop.
+2. **Missing** (first run): tell the user, then AskUserQuestion — "describe the format, I'll draft the file" vs. "I'll set it up myself, stop here." If they describe it, ask the scheme (JIRA/GitHub/Linear/none/other), write the file, then stage and commit it on whatever branch is currently checked out: `Add ticket ID format config`. Otherwise stop.
 3. **Present:** extract the pattern/regex and examples.
 4. Validate the candidate ticket ID against it.
 5. **No match** (or no candidate): show the expected format, AskUserQuestion — corrected ID / use anyway / no-ticket fallback. Never guess.
@@ -69,14 +69,15 @@ Glob/Grep/Read the feature area — similar features, conventions, tests, relate
 1. Ask the user to review `.specs/<ticketId>_<slug>/spec.md` — approve or request changes, loop until approved.
 2. Approval is a chat-only gate for Phase 8 — never add an approver name to the file.
 
-## Phase 8 — Branch creation
+## Phase 8 — Branch creation and commit
 
 **Don't start until Phase 7 approval is explicit.**
 
-1. `git status --porcelain`. Dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
+1. `git status --porcelain`, disregarding the newly-written `spec.md` — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
 2. Trunk: `CLAUDE.md`'s choice, else `main`, else `master`. Ask if still ambiguous.
 3. Zero commits (`git rev-parse --verify HEAD` fails): tell the user, skip switch/pull, ask whether to branch from the unborn state or commit first.
 4. Otherwise: switch to trunk if needed; pull only if it tracks a remote.
 5. Create/checkout `<ticketId>/<slug>/feature`. If it already exists, check it out and note how far ahead of trunk it is.
-6. Never push.
-7. Confirm: spec path, branch name, current branch. Tell the user to run `/clear` then, optionally, `/codely.sys-design` (architecture/data/API design) and/or `/codely.ui` (screen mockups) — or straight to `/codely.plan` if neither is needed.
+6. Stage and commit `spec.md` if it has uncommitted changes: `Add spec for <ticketId>` for a new spec, `Update spec for <ticketId>` for a revision (Phase 2's Resume/revise path). No changes to commit → skip silently.
+7. Never push.
+8. Confirm: spec path, branch name, current branch. Tell the user to run `/clear` then, optionally, `/codely.sys-design` (architecture/data/API design) and/or `/codely.ui` (screen mockups) — or straight to `/codely.plan` if neither is needed.
