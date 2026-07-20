@@ -67,4 +67,4 @@ Once all HLD topics are checked, (re)synthesize the HLD's Traceability table (ma
 1. Confirm every Status item across both artifacts is checked — any left open, return to Phase 3 for just those topics.
 2. Ask the user to review both `.sdlc/hld.md` and `.sdlc/lld.md` — approve or request changes, loop until approved.
 3. No git action follows approval — this command never branches, commits, or pushes.
-4. Confirm both artifact paths. Tell the user the SDLC phases are complete — run `/clear` then `/codely.backlog` next to turn this design into a proposed ticket backlog, then `/codely.spec` per ticket to start implementation.
+4. Confirm both artifact paths. Tell the user the SDLC phases are complete — run `/clear` then, in either order, `/codely.sys-init` (turns this design into a real, phased project scaffold) and/or `/codely.backlog` (turns it into a proposed ticket backlog), then `/codely.spec` per ticket to start implementation.

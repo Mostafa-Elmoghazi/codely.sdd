@@ -1,12 +1,176 @@
 # codely.sdd
 
-Coginitics' Spec-Driven Development (SDD) toolkit — a set of Claude Code commands and templates for running client projects through a consistent requirements → design → plan → implement → QA cycle.
+Coginitics' Spec-Driven Development (SDD) toolkit — a set of Claude Code slash commands and templates that run a project through a full software development life cycle: planning → requirements → design → real project scaffolding → ticket-by-ticket implementation → QA. Every phase is interview-driven (never guesses at material decisions) and every artifact goes through an explicit chat approval before anything touches git.
 
-## Structure
+See [WORKFLOW.md](./WORKFLOW.md) for the full narrative walkthrough with diagrams — this README is the command reference and repo map.
+
+## The Two Flows
+
+```mermaid
+flowchart TD
+    subgraph SDLC["SDLC Flow"]
+        Plan["/sdlc.plan"] --> ReqAnalysis["/sdlc.req-analysis"] --> SysDesign["/sdlc.system-design"]
+    end
+    subgraph Bridge["Project Initialization"]
+        SysInit["/codely.sys-init"]
+        Backlog["/codely.backlog"]
+    end
+    subgraph Impl["Implementation Flow"]
+        MultiPhase["Multi-Phase Flow"]
+        Quick["Quick Flow"]
+        BugFix["Bug-Fix Flow"]
+    end
+    SysDesign --> SysInit
+    SysDesign --> Backlog
+    Backlog --> MultiPhase
+    Backlog --> Quick
+    Backlog --> BugFix
+```
+
+- **SDLC Flow** (`sdlc.*`) — idea → approved project charter/plan → approved requirements (SRS + use-case model) → approved system design (HLD + LLD). Chat-only, no git actions; artifacts live under `.sdlc/`.
+- **Project Initialization** — `/codely.sys-init` turns the approved design into a real, phased project scaffold; `/codely.backlog` turns it into a proposed ticket list. Independent of each other, run either or both, in any order.
+- **Implementation Flow** (`codely.*`) — per ticket, under `.specs/TICKET-ID_slug/`, real branches/commits/PRs. Three entry points depending on the change: the full **Multi-Phase Flow** (`/codely.spec`), the **Quick Flow** (`/codely.quick`) for small well-understood changes, and the **Bug-Fix Flow** (`/codely.bug-fix`) for reported bugs.
+
+## Quick Start
+
+```
+/sdlc.plan A CRM for boutique real-estate agencies
+/clear
+/sdlc.req-analysis
+/clear
+/sdlc.system-design
+/clear
+/codely.sys-init        # once — scaffold the real project, one reviewed phase at a time
+/clear
+/codely.backlog
+/clear
+/codely.spec PROJ-1 Add agent onboarding flow
+/clear
+/codely.plan PROJ-1
+/clear
+/codely.implement PROJ-1 1
+/clear
+/codely.qa PROJ-1
+```
+
+Each command's final step tells you exactly what to run next (and when to `/clear` first) — this is just what that chain looks like end to end. Small, well-understood work can skip straight to `/codely.quick`; reported bugs go through `/codely.bug-fix` instead.
+
+## Commands
+
+Every command reads `CLAUDE.md` first (if present) and lets it override any default described here — trunk branch name, build/lint/test commands, etc. `[args]` reflects each command's `argument-hint`; omit them and the command asks instead of guessing.
+
+### SDLC Phase Commands
+
+Project-wide, chat-only — no branch, commit, or push. Approval happens entirely in conversation.
+
+#### `/sdlc.plan [brief project pitch]`
+Turn a one- or two-line pitch into an approved **project charter** (Goals, Scope, Feasibility Assessment, Risks & Mitigations) and **project plan** (Roadmap, Resource Allocation).
+- **Writes:** `.sdlc/project-charter.md`, `.sdlc/project-plan.md`
+- **Next:** `/sdlc.req-analysis`
+
+#### `/sdlc.req-analysis [optional focus area or notes]`
+Turn the approved charter into an approved **use-case model** (Actors, Use Cases, User Stories, Process Workflows — with Mermaid diagrams) and **SRS** (Functional/Non-Functional Requirements, Validation).
+- **Reads:** `project-charter.md`, `project-plan.md` (if present)
+- **Writes:** `.sdlc/use-case-model.md`, `.sdlc/srs.md`
+- **Next:** `/sdlc.system-design`
+
+#### `/sdlc.system-design [optional focus area or notes]`
+Turn the approved requirements into an approved **HLD** (Architecture Overview, Data Model, Technology Selection, UI/UX Overview) and **LLD** (Component Design, API Endpoints, Cross-cutting Concerns). The last SDLC-phase command — its output is what the rest of the toolkit builds on.
+- **Reads:** `srs.md`, `use-case-model.md`, `project-charter.md` (if present)
+- **Writes:** `.sdlc/hld.md`, `.sdlc/lld.md`
+- **Next:** `/codely.sys-init` and/or `/codely.backlog`
+
+### Project Initialization
+
+Project-wide, but git-backed — the bridge between an approved design and real ticket work.
+
+#### `/codely.sys-init [phase-number]`
+Turn the approved design into a real, running project structure, one reviewed phase at a time. First run interviews you and writes `.sdlc/construction-plan.md` — a phased breakdown where every phase lists the exact scaffolding/install commands it will run, reviewed before anything executes. Every later run (after `/clear`, once the previous phase's PR is merged) executes the next unchecked phase: branch, scaffold, verify, approve, commit, push, PR. The only command in this toolkit allowed to write and install real project files outside `.sdlc/`/`.specs/`.
+- **Reads:** `.sdlc/hld.md`, `.sdlc/lld.md`, `.sdlc/project-plan.md` (if present)
+- **Writes:** `.sdlc/construction-plan.md`, then real project files/directories, phase by phase
+- **Git:** commits the plan to `sys-init/plan` (push + draft PR); each phase after that commits to its own `sys-init/phase-slug` (push + draft PR)
+- **Next:** re-run `/codely.sys-init` until every phase is checked off, then `/codely.spec` per ticket
+
+#### `/codely.backlog [optional focus area or notes]`
+Turn the approved design into a proposed, board-agnostic ticket backlog — one entry per ticket, traceable to the SRS's requirements and the LLD's components/endpoints, grouped into dependency-ordered waves. Draft-only: never calls a real tracker's API. Create the actual tickets on your team's board from this list.
+- **Reads:** `hld.md`, `lld.md`, `srs.md`, `use-case-model.md`, `project-plan.md` (if present)
+- **Writes:** `.sdlc/backlog.md`
+- **Next:** create tickets on your board, then `/codely.spec TICKET-ID description` per ticket
+
+### Ticket Lifecycle — Multi-Phase Flow
+
+Per ticket, under `.specs/TICKET-ID_slug/`. For anything substantial enough to warrant its own spec, design review, and a phased implementation.
+
+#### `/codely.spec [ticket-id] [brief description]`
+Turn a ticket ID + brief description into an approved spec (Summary, Context, Functional Requirements, Acceptance Criteria, and more), then cut the ticket's branch. Drafts `.claude/includes/ticket-format.md` on first use if it doesn't exist yet, and validates the ticket ID against it.
+- **Writes:** `.specs/TICKET-ID_slug/spec.md`
+- **Git:** creates `TICKET-ID/slug/feature`, commits `spec.md` to it (no push)
+- **Next:** `/codely.sys-design` and/or `/codely.ui` (both optional), or straight to `/codely.plan`
+
+#### `/codely.sys-design [ticket-id]`
+*Optional.* Turn the approved spec into a ticket-level system design — architecture, data model, API contract, component breakdown — consistent with the project-wide HLD/LLD if they exist. Skip it for tickets that don't need explicit design beyond the spec.
+- **Reads:** `spec.md`, `.sdlc/hld.md`/`.sdlc/lld.md` (if present)
+- **Writes:** `.specs/TICKET-ID_slug/system-design.md`
+- **Git:** commits to the existing docs branch (no push)
+- **Next:** `/codely.ui` (optional) or `/codely.plan`
+
+#### `/codely.ui [ticket-id]`
+*Optional.* Turn the approved spec into previewable screen mockups (self-contained HTML/CSS, published live via Artifacts for review) plus a design breakdown. Reuses the codebase's existing design system where one exists; flags a neutral placeholder style otherwise.
+- **Reads:** `spec.md`, `system-design.md` (if present)
+- **Writes:** `.specs/TICKET-ID_slug/design.md`, `.specs/TICKET-ID_slug/design/*.html`
+- **Git:** commits to the existing docs branch (no push)
+- **Next:** `/codely.plan`
+
+#### `/codely.plan [ticket-id]`
+Turn the approved spec (+ design, if any) into a phased implementation plan — each phase with its own branch slug, ordered tasks with done-criteria, and key files — plus a QA Plan checklist. Below ~10 files and low complexity, it recommends `/codely.quick` instead.
+- **Reads:** `spec.md`, `system-design.md`/`design.md` (if present)
+- **Writes:** `.specs/TICKET-ID_slug/plan.md` (+ `follow-up.md` if items are deferred)
+- **Git:** commits to the docs branch, pushes, opens a draft PR (spec + design + plan reviewed together)
+- **Next:** `/codely.implement`
+
+#### `/codely.implement [ticket-id] [phase-number]`
+Implement one phase of the approved plan, verify it (build/lint/test, and exercise the feature in a running app for UI-facing changes), then commit, push, and open it as its own PR. One run = one phase.
+- **Reads:** `spec.md`, `system-design.md`/`design.md`/`follow-up.md` (if present), the target phase from `plan.md`
+- **Writes:** the application code for that phase; `plan.md` (task checkboxes); `follow-up.md` (if new deferred items surface)
+- **Git:** branches `TICKET-ID/phase-slug` off trunk (or the previous phase's branch), commits, pushes, opens a draft PR
+- **Next:** repeat for each remaining phase, then `/codely.qa`
+
+#### `/codely.qa [ticket-id]`
+Verify every task across the plan is complete, then walk the plan's QA Plan checklist against the implementation — running what's machine-verifiable itself, walking the rest with you. Verifies only; on any failure it stops and reports rather than fixing anything.
+- **Reads:** `spec.md`, `system-design.md`/`design.md`/`follow-up.md` (if present), the full plan document
+- **Writes:** QA results into the plan document
+- **Git:** commits the plan document, pushes, ticks `QA Done` on the PR, marks it ready for review — only once nothing has Failed
+- **Next:** `/codely.follow-up` if `follow-up.md` has open items, otherwise get the PR merged
+
+#### `/codely.follow-up [ticket-id]`
+Triage `follow-up.md` one item at a time: **Promote** (create a real ticket, via a connected task tracker if available), **Integrate** (fold a small change into this PR now), **Drop** (with a reason), or **Other** (your call).
+- **Reads:** `spec.md`, the plan document
+- **Writes:** `follow-up.md`; application code for any Integrate items
+- **Git:** commits, pushes, ticks `Follow-Up Triaged` once every item is resolved
+- **Next:** get the PR reviewed and merged
+
+### Alternate Entry Points
+
+Bypass the multi-phase flow for cases that don't need it.
+
+#### `/codely.quick [ticket-id] [brief description]`
+For small, well-understood changes: one interview covers what a spec interview and a plan interview would each cover, folded into a single `quick-plan.md`, implemented and opened as one PR in one run. Steps back to the full flow if the change turns out to be bigger than expected.
+- **Writes:** `.specs/TICKET-ID_slug/quick-plan.md`, the application code, `follow-up.md` (if items are deferred)
+- **Git:** branches `TICKET-ID/slug/quick`; commits the plan, then the implementation; pushes; opens a draft PR
+- **Next:** `/codely.qa` (optional) and/or `/codely.follow-up` (if applicable), then merge
+
+#### `/codely.bug-fix [ticket-id] [brief description]`
+Reproduce a reported bug, confirm its root cause **with you before writing any fix code**, then implement the fix behind a regression test proven failing (red) before the fix and passing (green) after — each its own commit, so the proof is durable and independently checkable.
+- **Writes:** `.specs/TICKET-ID_slug/bug-fix-plan.md`, a regression test, the fix code, `follow-up.md` (if items are deferred)
+- **Git:** branches `TICKET-ID/slug/bug-fix`; commits the plan, then the failing test alone, then the fix; pushes; opens a draft PR
+- **Next:** `/codely.qa` (optional) and/or `/codely.follow-up` (if applicable), then merge
+
+## Repository Structure
 
 ```
 .claude/commands/
 ├── codely.quick.md         ← /codely.quick — fast path for small, well-understood changes
+├── codely.sys-init.md      ← /codely.sys-init — approved system design to a real, phased project scaffold
 ├── codely.backlog.md       ← /codely.backlog — approved system design to a proposed, board-agnostic ticket backlog
 ├── codely.spec.md          ← /codely.spec — turns a requirement into a spec
 ├── codely.sys-design.md    ← /codely.sys-design — optional: approved spec to ticket-level system design (architecture/data/API/components)
@@ -34,22 +198,23 @@ Coginitics' Spec-Driven Development (SDD) toolkit — a set of Claude Code comma
 ├── srs.md                ← SDLC Software Requirements Specification template, used by /sdlc.req-analysis
 ├── hld.md                ← SDLC High-Level Design template (architecture/data model/tech stack), used by /sdlc.system-design
 ├── lld.md                ← SDLC Low-Level Design template (component/class design/API contracts), used by /sdlc.system-design
+├── construction-plan.md  ← phased project-scaffolding plan template (branches/tasks/commands), used by /codely.sys-init
 └── backlog.md            ← proposed ticket backlog template (waves/dependencies/sizing), used by /codely.backlog
 
 .claude/includes/
-└── (shared snippets/files referenced by commands and templates — TBD)
+└── ticket-format.md     ← per-project ticket ID pattern/regex — drafted on first use by /codely.spec, /codely.quick, or /codely.bug-fix
 ```
 
-## Pipeline
+## Conventions
 
-```
-sdlc.plan → sdlc.req-analysis → sdlc.system-design → codely.backlog
-  → [per ticket] codely.spec → codely.sys-design (optional) → codely.ui (optional)
-    → codely.plan → codely.implement → codely.qa → codely.follow-up
-```
+The essentials — see [WORKFLOW.md](./WORKFLOW.md)'s Cross-Cutting Conventions section for the full detail:
 
-`sdlc.*` commands are chat-only (no git actions) and write project-wide artifacts under `.sdlc/`. `codely.*` commands work ticket-by-ticket under `.specs/<ticketId>_<slug>/` and drive the actual branch/commit/PR flow. `codely.quick` and `codely.bug-fix` are alternate entry points for small changes and bug fixes respectively, bypassing most of the above.
+- **`.sdlc/`** holds project-wide artifacts (SDLC phases + `codely.sys-init`/`codely.backlog`'s output). **`.specs/TICKET-ID_slug/`** holds one ticket's artifacts. Never mixed.
+- **No git changes before approval**, everywhere — every artifact-producing phase ends in a chat-only review before any branch/commit/push.
+- **Resumable by design** — `/clear` mid-flow and re-run the same command; interview artifacts resume via a `## Status` topic checklist, phased/task artifacts resume via `- [ ]` task checkboxes.
+- **`QA Done`** and **`Follow-Up Triaged`** are PR checkboxes ticked only by `/codely.qa` and `/codely.follow-up` respectively, gating that PR's merge where they apply.
+- **`gh` CLI is optional** — every push/PR step falls back to manual instructions if it's unavailable.
 
 ## Status
 
-All commands and templates listed above are implemented. See [WORKFLOW.md](./WORKFLOW.md) for a fuller narrative walkthrough (to be documented).
+All commands and templates listed above are implemented. See [WORKFLOW.md](./WORKFLOW.md) for the full narrative walkthrough with diagrams for each flow.
