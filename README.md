@@ -165,6 +165,23 @@ Reproduce a reported bug, confirm its root cause **with you before writing any f
 - **Git:** branches `TICKET-ID/slug/bug-fix`; commits the plan, then the failing test alone, then the fix; pushes; opens a draft PR
 - **Next:** `/codely.qa` (optional) and/or `/codely.follow-up` (if applicable), then merge
 
+## Trainer Flow
+
+Independent of the SDLC/Implementation flows above — turns a course brief into a self-paced, git-tracked curriculum under `.courses/<course-slug>/`.
+
+#### `/trainer.start [brief course description]`
+Interview you into an approved curriculum — modules lettered A, B, C…, each with lessons numbered 1, 2, 3… (id `A.1`, etc.) and a final `(Workshop)` lesson — then cut the course's branch with it committed and pushed.
+- **Writes:** `.courses/<slug>/curriculum.md`
+- **Git:** creates `course/<slug>`, commits `curriculum.md`, pushes
+- **Next:** `/trainer.train <slug>`
+
+#### `/trainer.train [course-slug] [lesson-id]`
+Deliver one lesson — a self-contained `lesson.html` (explanation, examples, code samples, a visualization, exercises), previewed live via Artifacts. Waits for you to confirm you've taken it, then lets you choose a quiz (graded from your filled-in `quiz.md`) or a small project (`project.md`, recorded once you confirm you're done) before ticking the lesson — and, once every lesson under it is ticked, its module — in the curriculum. No lesson id → picks the first unticked lesson.
+- **Reads:** `.courses/<slug>/curriculum.md`
+- **Writes:** `.courses/<slug>/<lesson-id>_<lesson-slug>/lesson.html` (+ `quiz.md` or `project.md` if chosen); `curriculum.md` (checkboxes, quiz score / project summary)
+- **Git:** commits to the existing `course/<slug>` branch, pushes (no PR)
+- **Next:** re-run `/trainer.train <slug>` for the next unticked lesson, until the course is complete
+
 ## Repository Structure
 
 ```
@@ -182,7 +199,9 @@ Reproduce a reported bug, confirm its root cause **with you before writing any f
 ├── codely.ui.md            ← /codely.ui — approved spec to previewable screen mockups + design breakdown
 ├── sdlc.plan.md            ← /sdlc.plan — SDLC planning phase: idea → approved project charter + project plan
 ├── sdlc.req-analysis.md    ← /sdlc.req-analysis — SDLC requirements analysis phase: charter → approved SRS + use-case model
-└── sdlc.system-design.md   ← /sdlc.system-design — SDLC system design phase: SRS/use-case model → approved HLD + LLD
+├── sdlc.system-design.md   ← /sdlc.system-design — SDLC system design phase: SRS/use-case model → approved HLD + LLD
+├── trainer.start.md        ← /trainer.start — course brief to an approved, branched curriculum
+└── trainer.train.md        ← /trainer.train — delivers one lesson (content, quiz/project, progress)
 
 .claude/templates/
 ├── spec.md              ← requirements spec template
@@ -199,7 +218,8 @@ Reproduce a reported bug, confirm its root cause **with you before writing any f
 ├── hld.md                ← SDLC High-Level Design template (architecture/data model/tech stack), used by /sdlc.system-design
 ├── lld.md                ← SDLC Low-Level Design template (component/class design/API contracts), used by /sdlc.system-design
 ├── construction-plan.md  ← phased project-scaffolding plan template (branches/tasks/commands), used by /codely.sys-init
-└── backlog.md            ← proposed ticket backlog template (waves/dependencies/sizing), used by /codely.backlog
+├── backlog.md            ← proposed ticket backlog template (waves/dependencies/sizing), used by /codely.backlog
+└── curriculum.md         ← course curriculum template (lettered modules/numbered lessons), used by /trainer.start
 
 .claude/includes/
 └── ticket-format.md     ← per-project ticket ID pattern/regex — drafted on first use by /codely.spec, /codely.quick, or /codely.bug-fix
@@ -209,7 +229,7 @@ Reproduce a reported bug, confirm its root cause **with you before writing any f
 
 The essentials — see [WORKFLOW.md](./WORKFLOW.md)'s Cross-Cutting Conventions section for the full detail:
 
-- **`.sdlc/`** holds project-wide artifacts (SDLC phases + `codely.sys-init`/`codely.backlog`'s output). **`.specs/TICKET-ID_slug/`** holds one ticket's artifacts. Never mixed.
+- **`.sdlc/`** holds project-wide artifacts (SDLC phases + `codely.sys-init`/`codely.backlog`'s output). **`.specs/TICKET-ID_slug/`** holds one ticket's artifacts. **`.courses/course-slug/`** holds one course's curriculum + lessons (`trainer.*`), entirely separate from the SDLC/Implementation flows. Never mixed.
 - **No git changes before approval**, everywhere — every artifact-producing phase ends in a chat-only review before any branch/commit/push.
 - **Resumable by design** — `/clear` mid-flow and re-run the same command; interview artifacts resume via a `## Status` topic checklist, phased/task artifacts resume via `- [ ]` task checkboxes.
 - **`QA Done`** and **`Follow-Up Triaged`** are PR checkboxes ticked only by `/codely.qa` and `/codely.follow-up` respectively, gating that PR's merge where they apply.
