@@ -18,7 +18,7 @@ Verify every task across the plan is complete, then work through the plan's QA P
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
-- `gh` CLI available: !`command -v gh >/dev/null 2>&1 && echo yes || echo no`
+- `gh` CLI available: !`gh --version >/dev/null 2>&1 && echo yes || echo no`
 
 ## Phase 0 — Resolve the ticket and plan document
 
@@ -77,7 +77,7 @@ For each item classified as needing human judgment (batch up to 4 per AskUserQue
 1. `git status --porcelain`, disregarding the plan document just edited in Phase 5 — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort).
 2. Stage and commit the plan document: `Record QA results for <ticketId>`.
 3. Push the current branch.
-4. `gh` available → find the open PR for this branch, fetch its current body, flip `- [ ] QA Done` to `- [x] QA Done` within it, and write the updated body back with `gh pr edit --body`. This is the checkbox that gates the merge — tick it only now that Phase 6 has cleared.
+4. `gh` available → find the open PR for this branch, fetch its current body, flip `- [ ] QA Done` to `- [x] QA Done` within it, and write the updated body back via the REST API: `gh api repos/{owner}/{repo}/pulls/<number> -X PATCH -f body=<updated body>` (not `gh pr edit --body`, which drives a GraphQL mutation that can fail with a `Projects (classic)` deprecation error on repos with classic project boards). This is the checkbox that gates the merge — tick it only now that Phase 6 has cleared.
 5. Add a QA summary comment (`gh pr comment`) — Passed/Failed/Deferred counts, deferred items listed explicitly.
 6. `gh pr ready` to remove draft status.
 7. `gh` unavailable → tell the user to tick the `QA Done` checkbox and mark the PR ready for review manually, and share the QA summary for them to paste in.

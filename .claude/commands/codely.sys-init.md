@@ -17,7 +17,7 @@ Turn the approved `.sdlc/hld.md`/`.sdlc/lld.md` into a real project structure, o
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.sdlc/` contents: !`ls -1 .sdlc 2>/dev/null || echo "(.sdlc/ does not exist yet)"`
-- `gh` CLI available: !`command -v gh >/dev/null 2>&1 && echo yes || echo no`
+- `gh` CLI available: !`gh --version >/dev/null 2>&1 && echo yes || echo no`
 
 ## Phase 0 — Preconditions and mode
 

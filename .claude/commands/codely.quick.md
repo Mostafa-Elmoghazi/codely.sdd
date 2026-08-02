@@ -18,7 +18,7 @@ Turn a ticket ID + brief description directly into a reviewed, working implement
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
-- `gh` CLI available: !`command -v gh >/dev/null 2>&1 && echo yes || echo no`
+- `gh` CLI available: !`gh --version >/dev/null 2>&1 && echo yes || echo no`
 
 ## Phase 0 — Resolve inputs
 
