@@ -12,6 +12,8 @@ flowchart TD
         Plan["/sdlc.plan"] --> ReqAnalysis["/sdlc.req-analysis"] --> SysDesign["/sdlc.system-design"]
     end
     subgraph Bridge["Project Initialization"]
+        Wireframe["/codely.wireframe"]
+        UITemplate["/codely.ui-template"]
         SysInit["/codely.sys-init"]
         Backlog["/codely.backlog"]
     end
@@ -20,6 +22,8 @@ flowchart TD
         Quick["Quick Flow"]
         BugFix["Bug-Fix Flow"]
     end
+    SysDesign --> Wireframe
+    SysDesign --> UITemplate
     SysDesign --> SysInit
     SysDesign --> Backlog
     Backlog --> MultiPhase
@@ -28,7 +32,7 @@ flowchart TD
 ```
 
 - **SDLC Flow** (`sdlc.*`) — idea → approved project charter/plan → approved requirements (SRS + use-case model) → approved system design (HLD + LLD). Chat-only, no git actions; artifacts live under `.sdlc/`.
-- **Project Initialization** — `/codely.sys-init` turns the approved design into a real, phased project scaffold; `/codely.backlog` turns it into a proposed ticket list. Independent of each other, run either or both, in any order.
+- **Project Initialization** — `/codely.wireframe` (optional) turns the design into a whole-product screen inventory and low-fi wireframes; `/codely.ui-template` (optional) turns that into a high-fidelity HTML/CSS design system; `/codely.sys-init` turns the approved design into a real, phased project scaffold; `/codely.backlog` turns it into a proposed ticket list. All four are independent — run any subset, in any order, though `/codely.ui-template` reads `/codely.wireframe`'s output if it ran first.
 - **Implementation Flow** (`codely.*`) — per ticket, under `.specs/TICKET-ID_slug/`, real branches/commits/PRs. Three entry points depending on the change: the full **Multi-Phase Flow** (`/codely.spec`), the **Quick Flow** (`/codely.quick`) for small well-understood changes, and the **Bug-Fix Flow** (`/codely.bug-fix`) for reported bugs.
 
 ## Quick Start
@@ -39,6 +43,10 @@ flowchart TD
 /sdlc.req-analysis
 /clear
 /sdlc.system-design
+/clear
+/codely.wireframe       # optional — whole-product screen inventory + low-fi wireframes
+/clear
+/codely.ui-template     # optional — turns the wireframe into a high-fidelity HTML/CSS design system
 /clear
 /codely.sys-init        # once — scaffold the real project, one reviewed phase at a time
 /clear
@@ -82,7 +90,19 @@ Turn the approved requirements into an approved **HLD** (Architecture Overview, 
 
 ### Project Initialization
 
-Project-wide, but git-backed — the bridge between an approved design and real ticket work.
+Project-wide — the bridge between an approved design and real ticket work. `/codely.wireframe` and `/codely.ui-template` are chat-only like the `sdlc.*` trio; `/codely.sys-init` is git-backed; `/codely.backlog` is chat-only too. All four are optional/independent except noted below.
+
+#### `/codely.wireframe [optional focus area or notes]`
+*Optional.* Turn the approved system design into a low-fidelity, whole-product screen inventory and wireframes (structure/navigation only, no visual styling), published live via Artifacts for review. Establishes the information architecture that `/codely.backlog` and later per-ticket `/codely.ui` runs should stay consistent with.
+- **Reads:** `hld.md`, `lld.md`, `srs.md`, `use-case-model.md`, `project-charter.md` (if present)
+- **Writes:** `.sdlc/wireframe.md`, `.sdlc/wireframes/*.html`
+- **Next:** `/codely.ui-template` (optional) or straight to `/codely.sys-init`/`/codely.backlog`
+
+#### `/codely.ui-template [optional focus area or notes]`
+*Optional.* Turn the approved system design — and `/codely.wireframe`'s output, if present — into a high-fidelity, whole-product HTML/CSS design system: real tokens (palette/typography/spacing) applied across the key screens, published live via Artifacts for review. Proactively proposes a theme direction from the project's idea, industry, and target audience rather than waiting to be asked. This is what `/codely.ui`'s design-system discovery checks first, so every ticket's mockups share one look instead of each falling back to a placeholder style.
+- **Reads:** `hld.md`, `lld.md`, `wireframe.md` (if present), `project-charter.md`, `srs.md` (if present)
+- **Writes:** `.sdlc/ui-template.md`, `.sdlc/ui-template/tokens.css`, `.sdlc/ui-template/*.html`
+- **Next:** `/codely.sys-init` and/or `/codely.backlog`
 
 #### `/codely.sys-init [phase-number]`
 Turn the approved design into a real, running project structure, one reviewed phase at a time. First run interviews you and writes `.sdlc/construction-plan.md` — a phased breakdown where every phase lists the exact scaffolding/install commands it will run, reviewed before anything executes. Every later run (after `/clear`, once the previous phase's PR is merged) executes the next unchecked phase: branch, scaffold, verify, approve, commit, push, PR. The only command in this toolkit allowed to write and install real project files outside `.sdlc/`/`.specs/`.
@@ -115,7 +135,7 @@ Turn a ticket ID + brief description into an approved spec (Summary, Context, Fu
 - **Next:** `/codely.ui` (optional) or `/codely.plan`
 
 #### `/codely.ui [ticket-id]`
-*Optional.* Turn the approved spec into previewable screen mockups (self-contained HTML/CSS, published live via Artifacts for review) plus a design breakdown. Reuses the codebase's existing design system where one exists; flags a neutral placeholder style otherwise.
+*Optional.* Turn the approved spec into previewable screen mockups (self-contained HTML/CSS, published live via Artifacts for review) plus a design breakdown. Checks `.sdlc/ui-template/` first for a project-wide design system, then the live codebase's existing conventions; flags a neutral placeholder style only if neither exists.
 - **Reads:** `spec.md`, `system-design.md` (if present)
 - **Writes:** `.specs/TICKET-ID_slug/design.md`, `.specs/TICKET-ID_slug/design/*.html`
 - **Git:** commits to the existing docs branch (no push)
@@ -187,6 +207,8 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 ```
 .claude/commands/
 ├── codely.quick.md         ← /codely.quick — fast path for small, well-understood changes
+├── codely.wireframe.md     ← /codely.wireframe — optional: approved system design to a whole-product low-fi wireframe
+├── codely.ui-template.md   ← /codely.ui-template — optional: approved system design (+ wireframe) to a high-fidelity HTML/CSS design system
 ├── codely.sys-init.md      ← /codely.sys-init — approved system design to a real, phased project scaffold
 ├── codely.backlog.md       ← /codely.backlog — approved system design to a proposed, board-agnostic ticket backlog
 ├── codely.spec.md          ← /codely.spec — turns a requirement into a spec
@@ -204,6 +226,8 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 └── trainer.train.md        ← /trainer.train — delivers one lesson (content, quiz/project, progress)
 
 .claude/templates/
+├── wireframe.md          ← whole-product screen inventory/navigation template, paired with wireframes/*.html, used by /codely.wireframe
+├── ui-template.md        ← whole-product design tokens/screens template, paired with ui-template/*.html, used by /codely.ui-template
 ├── spec.md              ← requirements spec template
 ├── system-design.md     ← ticket-level system design template (architecture/data model/API contract/components), used by /codely.sys-design
 ├── design.md             ← screen inventory / component breakdown template, paired with design/*.html mockups
@@ -229,7 +253,7 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 
 The essentials — see [WORKFLOW.md](./WORKFLOW.md)'s Cross-Cutting Conventions section for the full detail:
 
-- **`.sdlc/`** holds project-wide artifacts (SDLC phases + `codely.sys-init`/`codely.backlog`'s output). **`.specs/TICKET-ID_slug/`** holds one ticket's artifacts. **`.courses/course-slug/`** holds one course's curriculum + lessons (`trainer.*`), entirely separate from the SDLC/Implementation flows. Never mixed.
+- **`.sdlc/`** holds project-wide artifacts (SDLC phases + `codely.wireframe`/`codely.ui-template`/`codely.sys-init`/`codely.backlog`'s output). **`.specs/TICKET-ID_slug/`** holds one ticket's artifacts. **`.courses/course-slug/`** holds one course's curriculum + lessons (`trainer.*`), entirely separate from the SDLC/Implementation flows. Never mixed.
 - **No git changes before approval**, everywhere — every artifact-producing phase ends in a chat-only review before any branch/commit/push.
 - **Resumable by design** — `/clear` mid-flow and re-run the same command; interview artifacts resume via a `## Status` topic checklist, phased/task artifacts resume via `- [ ]` task checkboxes.
 - **`QA Done`** and **`Follow-Up Triaged`** are PR checkboxes ticked only by `/codely.qa` and `/codely.follow-up` respectively, gating that PR's merge where they apply.

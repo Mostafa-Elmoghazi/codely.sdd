@@ -35,11 +35,12 @@ Turn the approved `.sdlc/hld.md`/`.sdlc/lld.md` into a real project structure, o
 
 1. Read `.sdlc/hld.md` and `.sdlc/lld.md` — Architecture Overview, Major Modules, Technology Selection, Component Design bound the scaffold.
 2. Glob `.sdlc/project-plan.md` — present → read it too, its roadmap can inform phase sequencing.
-3. Glob/Grep/Read the repo root — don't propose scaffolding what already exists; note what's already in place so later phases can skip or extend it instead of colliding.
+3. Glob `.sdlc/ui-template/tokens.css` and `.sdlc/ui-template.md` — present → read them too; a UI-facing phase can then offer seeding a real theme/tokens file (Tailwind config, CSS custom properties, etc.) from these chosen tokens instead of leaving that to whatever the scaffolding CLI defaults to.
+4. Glob/Grep/Read the repo root — don't propose scaffolding what already exists; note what's already in place so later phases can skip or extend it instead of colliding.
 
 ## Phase 2 — Derive candidate phases (planning mode)
 
-1. From the HLD's Architecture Overview/Major Modules/Technology Selection and the LLD's Component Design, derive a dependency-ordered phase breakdown. Typical shape (adapt freely to the actual stack — merge, split, drop, or reorder as it warrants): repo/tooling baseline (package manager, lint/format config, git hooks) → one phase per major module/service → data layer/migrations → CI → deployment pipeline.
+1. From the HLD's Architecture Overview/Major Modules/Technology Selection and the LLD's Component Design, derive a dependency-ordered phase breakdown. Typical shape (adapt freely to the actual stack — merge, split, drop, or reorder as it warrants): repo/tooling baseline (package manager, lint/format config, git hooks) → one phase per major module/service → data layer/migrations → CI → deployment pipeline. If `.sdlc/ui-template/tokens.css` exists and the stack has a UI-facing phase, fold in a task seeding that phase's real theme/tokens config from it.
 2. For each candidate phase work out: title, branch slug, ordered tasks with done-criteria, the exact scaffolding-CLI/install/other shell commands it will run (if any — a phase may be hand-written files only), and key files/directories touched.
 
 ## Phase 3 — Interview, write, and approve the plan (planning mode)

@@ -36,7 +36,8 @@ Turn an approved spec into a set of previewable screen mockups plus a design bre
 
 ## Phase 2 — Design system discovery
 
-Glob/Grep/Read the codebase for existing design conventions — CSS variables/tokens, Tailwind or similar config, theme files, a shared component library, existing screens' markup and styling, brand colors/fonts, any style guide or Storybook. Found → mockups must reuse these, not invent a new look. Nothing found → say so plainly and use a neutral, unbranded placeholder style, flagged to the user as provisional.
+1. Glob `.sdlc/ui-template/` — present → read `tokens.css` and its screen files, and `.sdlc/ui-template.md`'s Theme Direction/Design Tokens sections; this is the project's established design system, so mockups must reuse it. Still check the live codebase (next step) too, in case real conventions have since diverged from it.
+2. Glob/Grep/Read the codebase for existing design conventions — CSS variables/tokens, Tailwind or similar config, theme files, a shared component library, existing screens' markup and styling, brand colors/fonts, any style guide or Storybook. Found (and step 1 found nothing) → mockups must reuse these, not invent a new look. Neither step found anything → say so plainly and use a neutral, unbranded placeholder style, flagged to the user as provisional.
 
 ## Phase 3 — Screen inventory
 

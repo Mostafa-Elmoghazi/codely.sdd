@@ -11,6 +11,8 @@ flowchart TD
         Plan["/sdlc.plan"] --> ReqAnalysis["/sdlc.req-analysis"] --> SysDesign["/sdlc.system-design"]
     end
     subgraph Bridge["Project Initialization"]
+        Wireframe["/codely.wireframe"]
+        UITemplate["/codely.ui-template"]
         SysInit["/codely.sys-init"]
         Backlog["/codely.backlog"]
     end
@@ -19,6 +21,8 @@ flowchart TD
         Quick["Quick Flow"]
         BugFix["Bug-Fix Flow"]
     end
+    SysDesign --> Wireframe
+    SysDesign --> UITemplate
     SysDesign --> SysInit
     SysDesign --> Backlog
     Backlog --> MultiPhase
@@ -52,7 +56,7 @@ Waterfall runs these once, in strict sequence; Agile/iterative models loop throu
 |---|---|
 | Planning | `/sdlc.plan` |
 | Requirements Analysis | `/sdlc.req-analysis` |
-| Design | `/sdlc.system-design` (project-wide) and `/codely.sys-design` / `/codely.ui` (per ticket) |
+| Design | `/sdlc.system-design`, `/codely.wireframe`, `/codely.ui-template` (project-wide) and `/codely.sys-design` / `/codely.ui` (per ticket) |
 | Implementation | `/codely.sys-init` (project scaffold) and `/codely.spec` → `/codely.plan` → `/codely.implement` (per ticket) |
 | Testing / QA | `/codely.qa` |
 | Deployment | *not yet covered* |
@@ -93,22 +97,38 @@ No git action ever happens in this flow. Approval is a chat-only gate: you revie
 
 ## 3. Project Initialization
 
-Once `hld.md`/`lld.md` are approved, two independent commands bridge the SDLC flow into real work — run either first, or only one of them, depending on what the project needs:
+Once `hld.md`/`lld.md` are approved, four independent commands bridge the SDLC flow into real work — run any subset, in any order, depending on what the project needs:
 
 ```mermaid
 flowchart LR
-    HLD["hld.md"] --> SysInit["/codely.sys-init"]
-    LLD["lld.md"] --> SysInit
+    HLD["hld.md"] --> Wireframe["/codely.wireframe"]
+    LLD["lld.md"] --> Wireframe
+    SRS["srs.md"] --> Wireframe
+    UCM["use-case-model.md"] --> Wireframe
+    Charter["project-charter.md"] --> Wireframe
+    Wireframe --> WireframeMd["wireframe.md"]
+    WireframeMd -.->|"if present"| UITemplate["/codely.ui-template"]
+    HLD --> UITemplate
+    LLD --> UITemplate
+    Charter --> UITemplate
+    UITemplate --> UITemplateMd["ui-template.md"]
+    HLD --> SysInit["/codely.sys-init"]
+    LLD --> SysInit
+    UITemplateMd -.->|"if present"| SysInit
     HLD --> Backlog["/codely.backlog"]
     LLD --> Backlog
-    SRS["srs.md"] --> Backlog
-    UCM["use-case-model.md"] --> Backlog
+    SRS --> Backlog
+    UCM --> Backlog
     SysInit -->|"phase by phase"| Scaffold["Real project files + construction-plan.md"]
     Backlog --> BacklogMd["backlog.md"]
 ```
 
+- **`/codely.wireframe`** (optional) turns the HLD's UI/UX Overview plus the SRS's requirements and the use-case model's workflows into a low-fidelity, whole-product screen inventory and wireframes at `.sdlc/wireframe.md` — structure and navigation only, no visual styling. Proactively proposes a layout/IA direction from the charter's stated audience and industry rather than waiting to be asked. Establishes the information architecture that everything downstream (backlog, per-ticket `/codely.ui`) should stay consistent with.
+- **`/codely.ui-template`** (optional) turns that wireframe — or the HLD directly, if no wireframe was run — into a high-fidelity HTML/CSS design system at `.sdlc/ui-template.md`: real color/typography/spacing tokens applied across the key screens. Proactively proposes 2-3 candidate visual directions grounded in the project's idea, industry, and target audience, gets one confirmed, then drafts. This becomes the design system `/codely.ui` checks for first on every later ticket, so mockups share one look instead of each falling back to a placeholder style.
 - **`/codely.backlog`** cross-references the SRS's requirements against the LLD's components/endpoints and proposes a dependency-ordered, wave-grouped ticket list at `.sdlc/backlog.md`. It's a proposal only — it never calls a real tracker's API. You create the actual tickets on your team's board (Jira/Linear/GitHub Issues/whatever) from this list.
-- **`/codely.sys-init`** turns the design into an actual, running project skeleton. It's the one command in this toolkit allowed to write and install real project files outside `.sdlc/`/`.specs/` — see below, since its shape is different enough from everything else to warrant its own diagram.
+- **`/codely.sys-init`** turns the design into an actual, running project skeleton — if `.sdlc/ui-template/tokens.css` exists, a UI-facing phase can seed real theme config from it. It's the one command in this toolkit allowed to write and install real project files outside `.sdlc/`/`.specs/` — see below, since its shape is different enough from everything else to warrant its own diagram.
+
+`/codely.wireframe` and `/codely.ui-template` are chat-only, like the `sdlc.*` trio — no branch, commit, or push. Approval happens entirely in conversation, same as the SDLC Flow above.
 
 ### `/codely.sys-init`: a reentrant, phased scaffold
 
@@ -187,7 +207,7 @@ flowchart TD
     FollowUp --> Ready
 ```
 
-`/codely.sys-design` and `/codely.ui` are both optional and independent of each other — skip either or both for tickets that don't need them; every downstream command already treats their files as "present → read it," so nothing breaks if they're absent.
+`/codely.sys-design` and `/codely.ui` are both optional and independent of each other — skip either or both for tickets that don't need them; every downstream command already treats their files as "present → read it," so nothing breaks if they're absent. `/codely.ui` checks `.sdlc/ui-template/` first for a project-wide design system (see §3), then the live codebase, before falling back to a neutral placeholder style.
 
 **Branch topology.** Every doc for a ticket (spec, optional design, optional UI, plan) accumulates on one shared branch, committed as each is approved; only implementation gets its own branch per phase, based on trunk once the previous phase has merged (or stacked on the previous phase's branch if it hasn't yet):
 
