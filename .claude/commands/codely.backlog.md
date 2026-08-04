@@ -42,9 +42,9 @@ Turn the approved SDLC design into a proposed ticket backlog at `.sdlc/backlog.m
 
 ## Phase 4 — Write the backlog
 
-1. Fill `.claude/templates/backlog.md` placeholders.
-2. Mandatory: at least one Wave table (Proposed Title, Description, Source, Depends On, Size — leave Board ID blank).
-3. Optional — omit the whole section if empty, never write "N/A": Out of Scope / Deferred, Decisions.
+1. Fill `.claude/templates/backlog.md` placeholders — the template holds only headers, the "How to use this" note, and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+2. Mandatory: at least one Wave table — repeat `## Wave N: {{title}}` with its own table for each additional wave (Proposed Title, Description, Source, Depends On, Size — leave Board ID blank). Tickets within a wave have no dependencies on each other; later waves depend on earlier ones.
+3. Optional — omit the whole section if empty, never write "N/A": Out of Scope / Deferred (candidate work identified but deliberately excluded from this backlog — e.g. explicitly out of scope per the charter, or deferred to a later phase of the project plan), Decisions ("you decide" calls made during the review, with rationale — sizing ties, sequencing calls, slicing choices).
 4. Write to `.sdlc/backlog.md`.
 
 ## Phase 5 — Approval loop & handoff

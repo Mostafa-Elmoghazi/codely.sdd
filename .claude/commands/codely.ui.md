@@ -66,9 +66,9 @@ For each screen confirmed in Phase 3:
 ## Phase 6 — Write the design files
 
 1. For each confirmed screen, save its final HTML/CSS to `.specs/<ticketId>_<slug>/design/<screen-slug>.html` (self-contained, matching the last published Artifact revision).
-2. Fill `.claude/templates/design.md` placeholders.
-3. Mandatory: Screens, Component Breakdown.
-4. Optional — omit the whole section if empty, never write "N/A": Navigation / Flow (omit if a single screen), Non-Functional Notes, Open Questions.
+2. Fill `.claude/templates/design.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+3. Mandatory: Screens (one entry per screen — repeat `### {{screen_title}}` with its own File/Platform/States for each additional screen), Component Breakdown (reusable/existing vs. new components identified across the screens).
+4. Optional — omit the whole section if empty, never write "N/A": Navigation / Flow (omit if a single screen — how screens connect: entry points, transitions, back/cancel behavior), Non-Functional Notes (responsive breakpoints, accessibility considerations, platform conventions followed), Open Questions (deferred to `follow-up.md` or resolved during `/codely.plan`).
 5. Write to `.specs/<ticketId>_<slug>/design.md`.
 
 ## Phase 7 — Approval loop

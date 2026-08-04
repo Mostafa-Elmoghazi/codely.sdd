@@ -53,10 +53,11 @@ Glob/Grep/Read the existing codebase — current architecture, existing data mod
 
 ## Phase 4 — Write the system design
 
-1. Fill `.claude/templates/system-design.md` placeholders.
-2. Mandatory: Architecture, Component Breakdown.
-3. Mandatory — omit only if this ticket introduces no such changes: Data Model, API Contract.
-4. Optional — omit the whole section if empty, never write "N/A": Decisions.
+1. Fill `.claude/templates/system-design.md` placeholders — the template holds only headers, Mermaid skeletons, and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+2. Mandatory: Architecture (how this ticket's changes fit the existing system, or the project's `.sdlc/hld.md` if it exists — new or changed components and how they communicate), Component Breakdown (key modules/classes this ticket touches or introduces).
+3. Mandatory — omit only if this ticket introduces no such changes: Data Model (new or changed entities, fields, relationships), API Contract.
+4. Optional — omit the whole section if empty, never write "N/A": Decisions ("you decide" calls made during the interview, with rationale).
+5. In every Mermaid diagram, keep node/entity/class/attribute/method names plain identifiers and quote every label holding a placeholder (Mermaid treats a bare `{` as a diamond-node token even inside brackets, and its ER/class grammar doesn't allow braces in identifiers) — only an edge or relationship label may hold a placeholder, since it's already a quoted string.
 5. Write to `.specs/<ticketId>_<slug>/system-design.md`.
 
 ## Phase 5 — Approval loop

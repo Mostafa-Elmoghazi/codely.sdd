@@ -41,15 +41,22 @@ Work through the topics below **one at a time, in the order listed** — each to
 
 For each topic:
 1. Ask about it via AskUserQuestion round(s) (cap 4/call — split a 5-question topic across two calls). Digest answers; ask a follow-up round if new questions surface. On "you decide," state a recommendation and get explicit confirmation — record it under that artifact's Decisions.
-2. If the topic turns out to be multi-part or is taking several rounds, split its Status entry into indented sub-items (see the template's Status section) and resolve them one at a time.
-3. The first time a topic belonging to a given artifact is resolved, create that artifact from its template (`.claude/templates/project-charter.md` / `.claude/templates/project-plan.md`, creating `.sdlc/` if needed) with its `## Status` checklist intact. Write/update that topic's section, then check it off (and its parent, if all sub-items are done).
+2. If the topic turns out to be multi-part or is taking several rounds, split its Status entry into indented sub-items and check those off individually, checking the parent once all its sub-items (or the topic as a whole) are settled — resolve them one at a time.
+3. The first time a topic belonging to a given artifact is resolved, create that artifact from its template (`.claude/templates/project-charter.md` / `.claude/templates/project-plan.md`, creating `.sdlc/` if needed) with its `## Status` checklist intact — the checklist tracks interview progress across sessions so work can pause and resume without redoing settled topics; safe to ignore once every box is checked, and never delete the section. Write/update that topic's section, then check it off (and its parent, if all sub-items are done).
 4. A later topic changes an earlier decision → update that earlier section too; its Status box stays checked (the box tracks "resolved at least once," not "immutable").
 5. Move to the next topic.
 
-**`.sdlc/project-charter.md` topics** (in order): Goals, Scope, Feasibility Assessment, Risks & Mitigations.
-**`.sdlc/project-plan.md` topics** (in order, after the charter's topics): Roadmap (also covers the Strategy section and the Milestone Checklist rollup), Resource Allocation.
+**`.sdlc/project-charter.md` topics** (in order):
+- **Goals** — the core business problem or opportunity, and what success looks like.
+- **Scope** — project boundaries and high-level deliverables.
+- **Feasibility Assessment** — technical, economic, legal, and operational viability.
+- **Risks & Mitigations** — potential roadblocks and how they'll be managed.
 
-Optional sections (Out of Scope, Stakeholders, Assumptions & Constraints for the charter; Dependencies for the plan) aren't tracked topics — fill them in opportunistically whenever relevant information surfaces, omit the whole section if empty, never write "N/A". A single-phase roadmap still uses the `Phase 1: <title>` heading.
+**`.sdlc/project-plan.md` topics** (in order, after the charter's topics):
+- **Roadmap** — phases run in order, each a milestone-bearing chunk of work; repeat `### Phase N: {{title}}` with its own Timeline/Milestone/Deliverables for each additional phase (a single-phase roadmap still uses the `Phase 1: <title>` heading). Also covers the Strategy section (high-level approach to delivering the charter's goals — how the roadmap was sequenced and why) and the Milestone Checklist rollup (checklist of milestones/checkpoints that mark this plan's completion — the gate before `/sdlc.req-analysis` begins).
+- **Resource Allocation** — budget, team composition/skills, and tooling required.
+
+Optional sections aren't tracked topics — fill them in opportunistically whenever relevant information surfaces, omit the whole section if empty, never write "N/A": Out of Scope (what the charter explicitly doesn't cover), Stakeholders, Assumptions & Constraints for the charter; Dependencies (cross-phase or external dependencies — vendors, approvals, hires — that could block sequencing) for the plan.
 
 ## Phase 4 — Approval loop
 

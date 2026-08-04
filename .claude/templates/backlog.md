@@ -10,22 +10,14 @@
 
 ## Wave 1: {{wave_1_title}}
 
-*Mandatory — at least one wave. Tickets within a wave have no dependencies on each other; later waves depend on earlier ones.*
-
 | Proposed Title | Description | Source | Depends On | Size | Board ID |
 |---|---|---|---|---|---|
 | {{ticket_title}} | {{one_line_description}} | {{fr_or_component_refs}} | {{depends_on}} | {{size}} | |
 
-<!-- Repeat "## Wave N: {{title}}" with its own table for each additional wave. -->
-
 ## Out of Scope / Deferred
-
-*Optional — omit if empty. Candidate work identified but deliberately excluded from this backlog (e.g. explicitly out of scope per the charter, or deferred to a later phase of the project plan).*
 
 {{deferred_items}}
 
 ## Decisions
-
-*Optional — omit if empty. "You decide" calls made during the review, with rationale (sizing ties, sequencing calls, slicing choices).*
 
 {{decisions}}

@@ -41,9 +41,9 @@ Act as a professional trainer. Turn a course brief into an approved curriculum �
 
 ## Phase 3 — Draft the curriculum
 
-1. Derive the module breakdown (A, B, C…) and, within each, the lesson sequence (1, 2, 3…) from the interview. Every module's last lesson is `(Workshop)` — hands-on practice or a small project tying that module's lessons together.
-2. Fill `.claude/templates/curriculum.md` placeholders.
-3. Mandatory: Overview, Level & Audience, Curriculum. Optional — omit the whole section if empty, never write "N/A": Prerequisites, Decisions.
+1. Derive the module breakdown (A, B, C…) and, within each, the lesson sequence (1, 2, 3…) from the interview — repeat `- [ ] **Module X — {{title}}**` (B, C, D…) with its own lettered lessons for each additional module. Every module's last lesson is `(Workshop)` — hands-on practice or a small project tying that module's lessons together.
+2. Fill `.claude/templates/curriculum.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+3. Mandatory: Overview (what the course covers and what the learner can do by the end), Level & Audience, Curriculum (nothing below the Curriculum heading is edited by `/trainer.start` once approved — only `/trainer.train` writes there after that, ticking each lesson `- [x]` as it's taken). Optional — omit the whole section if empty, never write "N/A": Prerequisites, Decisions.
 4. Write to `.courses/<slug>/curriculum.md`, creating the directory if needed.
 
 ## Phase 4 — Approval loop

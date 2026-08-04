@@ -84,9 +84,9 @@ Read-only exploration — don't ask the user what the code and its history alrea
 
 ## Phase 9 — Write the bug-fix plan
 
-1. Fill `.claude/templates/bug-fix-plan.md` placeholders.
-2. Mandatory: Problem, Root Cause, Expected Behavior, Fix Plan, Tasks, Key Files, Verification (Regression Test subsection left as a skeleton — real evidence is filled in during Phases 12-13).
-3. Optional — omit the whole section if empty, never write "N/A": Out of Scope, Manual Verification (if the Regression Test alone fully covers it).
+1. Fill `.claude/templates/bug-fix-plan.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+2. Mandatory: Problem (the reported symptom and its impact, plus numbered steps to reproduce it — include environment details like OS/browser/version/deployment if relevant), Root Cause (the confirmed defect — code path, why it produces the symptom, and when/how it was introduced if known e.g. via `git blame`/`git log`), Expected Behavior (what correct behavior looks like once fixed — concrete enough to become the regression test's assertion), Fix Plan (the chosen approach to address the root cause, not just the symptom, and why over any alternatives considered), Tasks (task 1 is always the regression test, written and confirmed failing before any fix code is touched), Key Files, Verification (Regression Test subsection left as a skeleton — real evidence is filled in during Phases 12-13).
+3. Optional — omit the whole section if empty, never write "N/A": Out of Scope (related defects noticed during investigation but not fixed here — captured in `follow-up.md` instead), Manual Verification (omit if the Regression Test alone fully covers it — original repro steps from Problem, re-run against the fix).
 4. Branch: `<ticketId>/<slug>/bug-fix`, exact order.
 5. Write to `.specs/<ticketId>_<slug>/bug-fix-plan.md`, creating the directory if needed.
 

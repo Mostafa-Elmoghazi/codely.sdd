@@ -11,6 +11,8 @@ disable-model-invocation: true
 
 Triage `.specs/<ticketId>_<slug>/follow-up.md` one item at a time. Follow the phases in order. No git changes before approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+`follow-up.md` holds items deferred during interviews or surfaced during implementation, one `### N. {{item_title}}` entry per item with a `**Surfaced:**`/`**Description:**`/`**Status:**` block — triaged one at a time by this command.
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -58,7 +60,7 @@ For each Open item:
 4. **Integrate:** record the intent now; the actual implementation happens in Phase 4. Don't mark Triaged until it's actually done and verified.
 5. **Drop:** propose a reason grounded in the item's context; AskUserQuestion — accept the suggested reason / provide your own. Record it, Status: Triaged.
 6. **Other:** ask the user what they want done; record their answer verbatim as the disposition, Status: Triaged.
-7. Update the item in `follow-up.md` immediately after each decision — don't batch updates to the end.
+7. Update the item in `follow-up.md` immediately after each decision — don't batch updates to the end: append a `**Disposition:**` line directly below `**Status:**`, e.g. `**Disposition:** Promote — JIRA-456 created 2026-07-20`, `**Disposition:** Integrate — implemented in this PR`, `**Disposition:** Drop — reason`, or `**Disposition:** Other — what was decided`.
 
 ## Phase 4 — Integrate the chosen items
 

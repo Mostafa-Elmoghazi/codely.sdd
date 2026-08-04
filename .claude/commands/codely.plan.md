@@ -70,9 +70,9 @@ Glob/Grep/Read the feature area(s) — existing patterns, conventions, related m
 
 ## Phase 7 — Write the plan
 
-1. Fill `.claude/templates/plan.md` placeholders.
-2. Mandatory: Approach, Phases (each with Branch/Tasks/Key Files), QA Plan.
-3. Optional — omit the whole section if empty, never write "N/A": Out of Scope, Decisions.
+1. Fill `.claude/templates/plan.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+2. Mandatory: Approach (high-level strategy and key technical decisions — how the spec's requirements will be implemented), Phases (each with Branch/Tasks/Key Files — repeat the `### Phase N: {{title}}` block for each additional phase beyond the first; phases run in order, each phase's PR bases on `main` if the previous phase is already merged, otherwise stacks on the previous phase's branch), QA Plan (checklist of test cases, ticked off by `/codely.qa`).
+3. Optional — omit the whole section if empty, never write "N/A": Out of Scope (items explicitly confirmed out of scope during planning), Decisions (important points confirmed by the user during planning).
 4. Write to `.specs/<ticketId>_<slug>/plan.md`.
 5. Remind the user: no application code has changed — only the plan (and possibly follow-up) file.
 

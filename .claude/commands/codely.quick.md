@@ -67,9 +67,9 @@ From the ticket title: lowercase, `-`/`_` only, no dots, ~5 words / 40 chars max
 
 ## Phase 7 — Write the quick plan
 
-1. Fill `.claude/templates/quick-plan.md` placeholders.
-2. Mandatory: Summary, Context, Approach, Tasks, Key Files, Acceptance Criteria, QA Plan.
-3. Optional — omit the whole section if empty, never write "N/A": Out of Scope, Decisions.
+1. Fill `.claude/templates/quick-plan.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+2. Mandatory: Summary (what's being requested, why, and what success looks like), Context (background that led to this request), Approach (high-level strategy and key technical decisions — how this will be implemented), Tasks, Key Files, Acceptance Criteria (checklist that defines "done"), QA Plan (checklist of test cases, ticked off during implementation and by `/codely.qa` if run afterward).
+3. Optional — omit the whole section if empty, never write "N/A": Out of Scope (what this explicitly doesn't cover), Decisions (important points confirmed by the user during the interview).
 4. Branch: `<ticketId>/<slug>/quick`, exact order.
 5. Write to `.specs/<ticketId>_<slug>/quick-plan.md`, creating the directory if needed.
 

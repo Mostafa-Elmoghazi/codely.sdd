@@ -58,9 +58,9 @@ Glob/Grep/Read the feature area — similar features, conventions, tests, relate
 
 ## Phase 6 — Write the spec
 
-1. Fill `.claude/templates/spec.md` placeholders.
-2. Mandatory: Branch, Ticket ID, Summary, Context, Functional Requirements, Acceptance Criteria.
-3. Optional — omit the whole section if empty, never write "N/A": Out of Scope, User Stories, Edge Cases, Non-Functional, Constraints & Assumptions.
+1. Fill `.claude/templates/spec.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+2. Mandatory: Branch, Ticket ID, Summary (what's being requested, why, and what success looks like), Context (background that led to this request), Functional Requirements (testable behaviors the system must implement), Acceptance Criteria (checklist that defines "done").
+3. Optional — omit the whole section if empty, never write "N/A": Out of Scope (what this explicitly doesn't cover), User Stories (omit if not user-facing; `"As a ⟨role⟩, I want ⟨capability⟩, so that ⟨benefit⟩."`), Edge Cases, Non-Functional Requirements (performance, security, accessibility, compatibility, etc.), Constraints & Assumptions.
 4. Branch: `<ticketId>/<slug>/feature`, exact order.
 5. Write to `.specs/<ticketId>_<slug>/spec.md`, creating the directory if needed.
 
