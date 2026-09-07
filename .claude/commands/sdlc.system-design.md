@@ -10,10 +10,15 @@ disable-model-invocation: true
 > **Scope guardrail:** never writes or modifies application code, and never touches files outside `.sdlc/hld.md` and `.sdlc/lld.md`. This command makes no git changes (no branch, no commit, no PR) — approval happens in chat.
 
 Turn the approved requirements into two approved artifacts under `.sdlc/`:
+
 - **`hld.md`** — High-Level Design: architecture, major modules, data model, technology selection, and a light-touch UI/UX overview.
 - **`lld.md`** — Low-Level Design: component/class design and API endpoint contracts.
 
 This is the last SDLC-phase command — its output is the blueprint that `codely.*` commands (starting with `/codely.spec`) turn into tickets and code. Follow the phases in order. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
+
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
 
 ## Phase 0 — Load the requirements
 
@@ -43,6 +48,7 @@ Glob/Grep/Read the repo for existing signal before assuming greenfield: package 
 Work through the topics below **one at a time, in the order listed** — each topic's answer is written to disk as soon as it's resolved, so the work is never lost mid-interview and a later session can pick up exactly where this one stopped.
 
 For each topic:
+
 1. Ask about it via AskUserQuestion round(s) (cap 4/call — split a 5-question topic across two calls). Digest answers; ask a follow-up round if new questions surface. On "you decide," state a recommendation and get explicit confirmation — record it under that artifact's Decisions.
 2. If the topic turns out to be multi-part or is taking several rounds, split its Status entry into indented sub-items and check those off individually, checking the parent once all its sub-items (or the topic as a whole) are settled — resolve them one at a time.
 3. The first time a topic belonging to a given artifact is resolved, create that artifact from its template (`.claude/templates/hld.md` / `.claude/templates/lld.md`) with its `## Status` checklist intact — the checklist tracks interview progress across sessions so work can pause and resume without redoing settled topics; safe to ignore once every box is checked, and never delete the section. Write/update that topic's section, then check it off (and its parent, if all sub-items are done).
@@ -50,12 +56,14 @@ For each topic:
 5. Move to the next topic.
 
 **`.sdlc/hld.md` topics** (in order):
+
 - **Architecture Overview** — overall style (monolith/microservices/serverless), major modules/services and their responsibilities, how they communicate; also covers Major Modules (one entry per module/service). In the flowchart diagram, keep node IDs plain and quote every label holding a placeholder (Mermaid treats a bare `{` as a diamond-node token even inside brackets).
 - **Data Model** — key entities, relationships, storage choice(s), as an entity-relationship diagram. Entity names and attribute types/names must stay plain identifiers (Mermaid's ER grammar doesn't allow braces there) — only the relationship label may hold a placeholder, since it's a quoted string.
 - **Technology Selection** — languages, frameworks, hosting/infra — tied to the SRS's non-functional requirements (performance, scale, compliance, etc.).
 - **UI/UX Overview** — key screens and high-level navigation only, if the project has a user-facing UI; detailed mockups are deferred to `/codely.ui` per ticket. Skip (check off with a one-line note) if there's no user-facing UI.
 
 **`.sdlc/lld.md` topics** (in order, after the HLD's topics):
+
 - **Component Design** — one entry per module from the HLD, detailed enough for developers to implement directly, each with its own class diagram — repeat `### {{component_name}}` with its own Responsibility/diagram for each additional component. Class/attribute/method names stay plain identifiers (Mermaid's class-diagram grammar doesn't allow braces there).
 - **API Endpoints** — style (REST/GraphQL/RPC) and key endpoints. Skip (check off with a one-line note) if the system exposes no API.
 - **Cross-cutting Concerns** — auth, error handling, observability, where relevant; lands mainly in the (optional — omit if none beyond standard conventions) Error Handling section and the API table's Auth column, and may also touch the HLD's Traceability.

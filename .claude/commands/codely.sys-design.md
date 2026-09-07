@@ -11,6 +11,14 @@ disable-model-invocation: true
 
 **Optional step.** Turn an approved spec into a ticket-level system design at `.specs/<ticketId>_<slug>/system-design.md`, then commit it (no push) to the ticket's docs branch. Skip this command for tickets that don't need explicit architecture/data/API design beyond the spec — `/codely.plan`, `/codely.implement`, `/codely.qa`, and `/codely.ui` already treat this file as "present → read it," so nothing downstream breaks if it's absent. Follow the phases in order. No git changes before approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
+**Document authoring.** Applies to every file this command writes from a template:
+
+@.claude/includes/authoring.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -42,23 +50,27 @@ Glob/Grep/Read the existing codebase — current architecture, existing data mod
 
 **Mandatory — don't draft the system design until the architecture approach, data model changes, API contract, and component breakdown are all clear.**
 
-1. List open questions from spec gaps + `.sdlc/` findings + Phase 2 exploration, across:
-   - **Architecture** — how this ticket's changes fit the existing (or project HLD) architecture; any new components/services.
-   - **Data Model** — new or changed entities, fields, relationships, migrations.
-   - **API Contract** — new or changed endpoints, request/response shapes, auth.
-   - **Component Breakdown** — key modules/classes this ticket touches or introduces.
-2. AskUserQuestion in rounds of up to 4-5 (cap is 4/call — split a 5-question round across two calls). Clear labels, short trade-offs.
-3. Digest each round; run another if new questions surface.
-4. On "you decide," state a recommendation and get explicit confirmation — record it under Decisions.
+Start from the open questions raised by spec gaps + `.sdlc/` findings + Phase 2 exploration, across:
+
+- **Architecture** — how this ticket's changes fit the existing (or project HLD) architecture; any new components/services.
+- **Data Model** — new or changed entities, fields, relationships, migrations.
+- **API Contract** — new or changed endpoints, request/response shapes, auth.
+- **Component Breakdown** — key modules/classes this ticket touches or introduces.
+
+Then:
+
+@.claude/includes/interview.md
+
+Record any "you decide" call under Decisions.
 
 ## Phase 4 — Write the system design
 
-1. Fill `.claude/templates/system-design.md` placeholders — the template holds only headers, Mermaid skeletons, and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+1. Fill `.claude/templates/system-design.md` placeholders.
 2. Mandatory: Architecture (how this ticket's changes fit the existing system, or the project's `.sdlc/hld.md` if it exists — new or changed components and how they communicate), Component Breakdown (key modules/classes this ticket touches or introduces).
 3. Mandatory — omit only if this ticket introduces no such changes: Data Model (new or changed entities, fields, relationships), API Contract.
-4. Optional — omit the whole section if empty, never write "N/A": Decisions ("you decide" calls made during the interview, with rationale).
+4. Optional (omit a section entirely when empty): Decisions ("you decide" calls made during the interview, with rationale).
 5. In every Mermaid diagram, keep node/entity/class/attribute/method names plain identifiers and quote every label holding a placeholder (Mermaid treats a bare `{` as a diamond-node token even inside brackets, and its ER/class grammar doesn't allow braces in identifiers) — only an edge or relationship label may hold a placeholder, since it's already a quoted string.
-5. Write to `.specs/<ticketId>_<slug>/system-design.md`.
+6. Write to `.specs/<ticketId>_<slug>/system-design.md`.
 
 ## Phase 5 — Approval loop
 

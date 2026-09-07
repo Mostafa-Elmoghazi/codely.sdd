@@ -11,6 +11,10 @@ disable-model-invocation: true
 
 Act as a professional trainer. Deliver the requested (or next unfinished) lesson of an approved course: generate its lesson content, wait for the learner to take it, optionally quiz or project them on it, then record progress and push. Follow the phases in order. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -32,7 +36,7 @@ Act as a professional trainer. Deliver the requested (or next unfinished) lesson
 
 ## Phase 2 — Generate the lesson
 
-1. Derive a lesson slug from its title (lowercase, `-`/`_` only, no dots, ~5 words/40 chars).
+1. Derive a lesson slug from its title (slug rule per `.claude/includes/slug.md`).
 2. Folder: `.courses/<slug>/<lesson-id>_<lesson-slug>/` (e.g. `.courses/html-basics/A.1_intro-to-html/`) — create it if needed.
 3. Build a self-contained `lesson.html` (inline CSS/JS, no external requests): explanation of the concept(s), at least one worked example, code samples where the subject calls for them, a visualization or diagram where it aids understanding (inline SVG, or a `<pre class="mermaid">` block), and 2-4 practice exercises with how to self-check them. Connect it explicitly to the course's stated outcomes and to concepts from prior completed lessons. **`(Workshop)` lesson:** replace the exercises with a hands-on project brief instead — goal, requirements, suggested steps, done-criteria.
 4. Publish it via the Artifact tool for a live preview link — session convenience only; the written `lesson.html` is the durable output.

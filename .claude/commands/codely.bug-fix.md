@@ -11,6 +11,14 @@ disable-model-invocation: true
 
 Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working fix — investigate, confirm root cause, write a single `bug-fix-plan.md`, implement behind a failing→passing regression test, and open a draft PR, all in one run. Follow the phases in order. No git changes before the relevant approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
+**Document authoring.** Applies to every file this command writes from a template:
+
+@.claude/includes/authoring.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -42,7 +50,7 @@ Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working 
 
 ## Phase 3 — Generate the slug (new tickets only)
 
-From the ticket title: lowercase, `-`/`_` only, no dots, ~5 words / 40 chars max. Generate once, reuse everywhere below.
+@.claude/includes/slug.md
 
 ## Phase 4 — Reproduce the bug
 
@@ -84,9 +92,9 @@ Read-only exploration — don't ask the user what the code and its history alrea
 
 ## Phase 9 — Write the bug-fix plan
 
-1. Fill `.claude/templates/bug-fix-plan.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+1. Fill `.claude/templates/bug-fix-plan.md` placeholders.
 2. Mandatory: Problem (the reported symptom and its impact, plus numbered steps to reproduce it — include environment details like OS/browser/version/deployment if relevant), Root Cause (the confirmed defect — code path, why it produces the symptom, and when/how it was introduced if known e.g. via `git blame`/`git log`), Expected Behavior (what correct behavior looks like once fixed — concrete enough to become the regression test's assertion), Fix Plan (the chosen approach to address the root cause, not just the symptom, and why over any alternatives considered), Tasks (task 1 is always the regression test, written and confirmed failing before any fix code is touched), Key Files, Verification (Regression Test subsection left as a skeleton — real evidence is filled in during Phases 12-13).
-3. Optional — omit the whole section if empty, never write "N/A": Out of Scope (related defects noticed during investigation but not fixed here — captured in `follow-up.md` instead), Manual Verification (omit if the Regression Test alone fully covers it — original repro steps from Problem, re-run against the fix).
+3. Optional (omit a section entirely when empty): Out of Scope (related defects noticed during investigation but not fixed here — captured in `follow-up.md` instead), Manual Verification (omit if the Regression Test alone fully covers it — original repro steps from Problem, re-run against the fix).
 4. Branch: `<ticketId>/<slug>/bug-fix`, exact order.
 5. Write to `.specs/<ticketId>_<slug>/bug-fix-plan.md`, creating the directory if needed.
 
@@ -97,12 +105,8 @@ Read-only exploration — don't ask the user what the code and its history alrea
 
 ## Phase 11 — Branch creation & plan commit
 
-**Don't start until Phase 10 approval is explicit.**
+@.claude/includes/git-preflight.md
 
-1. `git status --porcelain`, disregarding `bug-fix-plan.md`/`follow-up.md` just written in Phase 9 — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
-2. Trunk: `CLAUDE.md`'s choice, else `main`, else `master`. Ask if still ambiguous.
-3. Zero commits (`git rev-parse --verify HEAD` fails): tell the user, skip switch/pull, ask whether to branch from the unborn state or commit first.
-4. Otherwise: switch to trunk if needed; pull only if it tracks a remote.
 5. Create/checkout `<ticketId>/<slug>/bug-fix`. If it already exists, check it out and note how far ahead of trunk it is.
 6. Stage and commit `bug-fix-plan.md` (and `follow-up.md` if created): `Add bug-fix plan for <ticketId>`.
 7. Don't push yet — implementation is still pending.
@@ -115,7 +119,7 @@ The proof that this fix works starts here, before any fix code is touched.
 2. Run it in isolation. It must fail. Confirm the failure reason matches the confirmed root cause, not a setup error or typo in the test itself — if it fails for the wrong reason, fix the test and re-run.
 3. Genuinely not testable in an automated way (per Phase 7's note, or discovered only now) → mark the plan's Regression Test subsection "Not applicable — <reason>," tell the user, and rely on Manual Verification instead (Phase 14). Skip to Phase 13.
 4. Capture the failing output verbatim.
-5. Stage and commit *only* the test: `Add regression test for <ticketId> (reproduces bug, currently failing)`. This commit is the durable, independently-checkable proof that the test fails without the fix.
+5. Stage and commit _only_ the test: `Add regression test for <ticketId> (reproduces bug, currently failing)`. This commit is the durable, independently-checkable proof that the test fails without the fix.
 6. Record the test reference, this commit's SHA, and the failing output in `bug-fix-plan.md`'s Verification → Regression Test → "Before fix (red)".
 
 ## Phase 13 — Implement the fix (green)

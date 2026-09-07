@@ -11,6 +11,14 @@ disable-model-invocation: true
 
 **Optional step.** Turn the approved system design — and `.sdlc/wireframe.md`, if one exists — into a high-fidelity, whole-product HTML/CSS design system at `.sdlc/ui-template.md` + `.sdlc/ui-template/<screen-slug>.html`: real design tokens (palette, typography, spacing), applied across the key screens. Skip this command if the project already has an established in-repo design system, or branding will be handled separately. This is the counterpart to `/codely.ui` at project scope — its output is exactly what `/codely.ui`'s design-system discovery step looks for first, so every later ticket's mockups share one look instead of each reinventing a placeholder style. Follow the phases in order. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
+**Document authoring.** Applies to every file this command writes from a template:
+
+@.claude/includes/authoring.md
+
 ## Phase 0 — Load context
 
 1. Read `CLAUDE.md` if present.
@@ -56,9 +64,9 @@ For each screen (from `.sdlc/wireframe.md` if present, else Phase 0's HLD-derive
 
 1. Write the confirmed design tokens as real CSS custom properties to `.sdlc/ui-template/tokens.css`.
 2. For each confirmed screen, save its final HTML to `.sdlc/ui-template/<screen-slug>.html` (self-contained, matching the last published Artifact revision, referencing `tokens.css`'s values).
-3. Fill `.claude/templates/ui-template.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+3. Fill `.claude/templates/ui-template.md` placeholders.
 4. Mandatory: Theme Direction (the confirmed candidate and its rationale from Phase 3), Design Tokens (a table of every token written to `tokens.css` — name, value, usage), Screens (one entry per screen — repeat `### {{screen_title}}` with its own File/Platform/States for each additional screen).
-5. Optional — omit the whole section if empty, never write "N/A": Component Breakdown (reusable UI components identified across the screens), Open Questions (deferred to ticket-level `/codely.ui` work).
+5. Optional (omit a section entirely when empty): Component Breakdown (reusable UI components identified across the screens), Open Questions (deferred to ticket-level `/codely.ui` work).
 6. Write to `.sdlc/ui-template.md`.
 
 ## Phase 6 — Approval loop

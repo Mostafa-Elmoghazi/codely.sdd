@@ -11,6 +11,10 @@ disable-model-invocation: true
 
 Verify every task across the plan is complete, then work through the plan's QA Plan checklist against the implementation — running what can be verified programmatically without asking, and walking everything else with the user one item at a time. Follow the phases in order. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`

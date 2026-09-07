@@ -11,6 +11,14 @@ disable-model-invocation: true
 
 **Optional step.** Turn the approved system design into a low-fidelity, whole-product screen inventory, wireframes (structure and layout only — boxes and labels, no visual styling), and navigation flow, at `.sdlc/wireframe.md` + `.sdlc/wireframes/<screen-slug>.html`. Skip this command for projects without a user-facing UI, or where the HLD's UI/UX Overview is already enough to move on from. This establishes the whole-product information architecture that `/codely.backlog` (screens → tickets) and later per-ticket `/codely.ui` runs should stay consistent with, and that `/codely.ui-template` (if run) turns into a high-fidelity design. Follow the phases in order. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
+**Document authoring.** Applies to every file this command writes from a template:
+
+@.claude/includes/authoring.md
+
 ## Phase 0 — Load context
 
 1. Read `CLAUDE.md` if present.
@@ -34,17 +42,15 @@ Glob/Grep/Read the codebase for existing UI conventions — layout patterns, nav
 
 1. From the HLD's UI/UX Overview, the SRS's functional requirements, and the use-case model's use cases/user stories/workflows, propose the full set of screens needed for the whole product, plus which states matter per screen (empty/loading/error/populated, etc.) and target platform (mobile/website/desktop — per the HLD, or ask if unclear).
 2. AskUserQuestion — confirm the inventory, or adjust (add/drop screens or states) before drafting.
-3. Generate each screen's slug (lowercase, `-`/`_` only, no dots, ~5 words/40 chars — same rule as a plan phase slug).
+3. Generate each screen's slug (slug rule per `.claude/includes/slug.md`).
 
 ## Phase 4 — Interview the user (rounds)
 
 **Mandatory — don't start drafting wireframes until the navigation paradigm, information architecture, and primary flows through the product are clear.**
 
-1. Before asking, synthesize what's already on disk from Phase 0 — the charter's stated idea, industry/domain, and target audience/persona — and *propose* a layout/IA direction with a one-line rationale (e.g. "a field-service scheduling app used on-site by tradespeople → mobile-first, large tap targets, shallow navigation — does that fit?").
-2. List remaining open questions from HLD/SRS/use-case-model gaps + Phase 2/3 findings: navigation paradigm (sidebar/top-nav/tab-bar/etc.), information density, primary flows between screens.
-3. AskUserQuestion in rounds of up to 4-5 (cap is 4/call — split a 5-question round across two calls).
-4. Digest each round; run another if new questions surface.
-5. On "you decide," state a recommendation and get explicit confirmation.
+Before asking, synthesize what's already on disk from Phase 0 — the charter's stated idea, industry/domain, and target audience/persona — and _propose_ a layout/IA direction with a one-line rationale (e.g. "a field-service scheduling app used on-site by tradespeople → mobile-first, large tap targets, shallow navigation — does that fit?"). Then work through the remaining open questions from HLD/SRS/use-case-model gaps + Phase 2/3 findings — navigation paradigm (sidebar/top-nav/tab-bar/etc.), information density, primary flows between screens:
+
+@.claude/includes/interview.md
 
 ## Phase 5 — Draft and preview each screen
 
@@ -59,9 +65,9 @@ For each screen confirmed in Phase 3:
 ## Phase 6 — Write the wireframe files
 
 1. For each confirmed screen, save its final HTML to `.sdlc/wireframes/<screen-slug>.html` (self-contained, matching the last published Artifact revision).
-2. Fill `.claude/templates/wireframe.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+2. Fill `.claude/templates/wireframe.md` placeholders.
 3. Mandatory: Screens (one entry per screen — repeat `### {{screen_title}}` with its own File/Platform/States for each additional screen), Navigation / Flow (how screens connect: entry points, transitions, back/cancel behavior — always populated here, since this is whole-product and always multi-screen, unlike `/codely.ui`'s per-ticket `design.md` where it's optional).
-4. Optional — omit the whole section if empty, never write "N/A": Layout Notes (density/responsive/platform conventions followed), Open Questions (deferred to `/codely.ui-template` or resolved during ticket-level work).
+4. Optional (omit a section entirely when empty): Layout Notes (density/responsive/platform conventions followed), Open Questions (deferred to `/codely.ui-template` or resolved during ticket-level work).
 5. In the Navigation / Flow Mermaid diagram, keep node IDs plain and quote every label holding a placeholder (Mermaid treats a bare `{` as a diamond-node token even inside brackets).
 6. Write to `.sdlc/wireframe.md`.
 

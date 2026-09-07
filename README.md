@@ -112,10 +112,10 @@ Turn the approved design into a real, running project structure, one reviewed ph
 - **Next:** re-run `/codely.sys-init` until every phase is checked off, then `/codely.spec` per ticket
 
 #### `/codely.backlog [optional focus area or notes]`
-Turn the approved design into a proposed, board-agnostic ticket backlog — one entry per ticket, traceable to the SRS's requirements and the LLD's components/endpoints, grouped into dependency-ordered waves. Draft-only: never calls a real tracker's API. Create the actual tickets on your team's board from this list.
-- **Reads:** `hld.md`, `lld.md`, `srs.md`, `use-case-model.md`, `project-plan.md` (if present)
-- **Writes:** `.sdlc/backlog.md`
-- **Next:** create tickets on your board, then `/codely.spec TICKET-ID description` per ticket
+Turn the approved design into a proposed ticket backlog — one entry per ticket, each assigned a ticket ID that follows `.claude/includes/ticket-format.md` (prefix derived from the project name), traceable to the SRS's requirements and the LLD's components/endpoints, grouped into dependency-ordered waves. Draft-only: never calls a real tracker's API. Create the actual tickets on your team's board from this list, using the IDs shown.
+- **Reads:** `hld.md`, `lld.md`, `srs.md`, `use-case-model.md`, `project-charter.md`/`project-plan.md` (if present), `.claude/includes/ticket-format.md`
+- **Writes:** `.sdlc/backlog.md` (and `.claude/includes/ticket-format.md` on first run, if you ask it to draft one)
+- **Next:** create tickets on your board with these IDs, then `/codely.spec TICKET-ID description` per ticket
 
 ### Ticket Lifecycle — Multi-Phase Flow
 
@@ -210,7 +210,7 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 ├── codely.wireframe.md     ← /codely.wireframe — optional: approved system design to a whole-product low-fi wireframe
 ├── codely.ui-template.md   ← /codely.ui-template — optional: approved system design (+ wireframe) to a high-fidelity HTML/CSS design system
 ├── codely.sys-init.md      ← /codely.sys-init — approved system design to a real, phased project scaffold
-├── codely.backlog.md       ← /codely.backlog — approved system design to a proposed, board-agnostic ticket backlog
+├── codely.backlog.md       ← /codely.backlog — approved system design to a proposed ticket backlog with assigned ticket IDs
 ├── codely.spec.md          ← /codely.spec — turns a requirement into a spec
 ├── codely.sys-design.md    ← /codely.sys-design — optional: approved spec to ticket-level system design (architecture/data/API/components)
 ├── codely.plan.md          ← /codely.plan — turns a spec into an implementation plan
@@ -242,7 +242,7 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 ├── hld.md                ← SDLC High-Level Design template (architecture/data model/tech stack), used by /sdlc.system-design
 ├── lld.md                ← SDLC Low-Level Design template (component/class design/API contracts), used by /sdlc.system-design
 ├── construction-plan.md  ← phased project-scaffolding plan template (branches/tasks/commands), used by /codely.sys-init
-├── backlog.md            ← proposed ticket backlog template (waves/dependencies/sizing), used by /codely.backlog
+├── backlog.md            ← proposed ticket backlog template (ticket IDs/waves/dependencies/sizing), used by /codely.backlog
 └── curriculum.md         ← course curriculum template (lettered modules/numbered lessons), used by /trainer.start
 
 .claude/includes/

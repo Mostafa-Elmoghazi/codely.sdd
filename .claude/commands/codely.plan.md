@@ -11,6 +11,14 @@ disable-model-invocation: true
 
 Turn an approved spec into a phased implementation plan at `.specs/<ticketId>_<slug>/plan.md`, then commit, push, and open it as a draft PR for review. Follow the phases in order. No git changes before approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
+**Document authoring.** Applies to every file this command writes from a template:
+
+@.claude/includes/authoring.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -50,15 +58,15 @@ Glob/Grep/Read the feature area(s) — existing patterns, conventions, related m
 
 **Mandatory — don't draft phases until the technical approach, phase breakdown, and any out-of-scope calls are confirmed.**
 
-1. List open questions from spec gaps + exploration findings + the Phase 2 sizing outcome.
-2. AskUserQuestion in rounds of up to 4-5 (cap is 4/call — split a 5-question round across two calls).
-3. Digest each round; run another if new questions surface.
-4. On "you decide," state a recommendation and get explicit confirmation — record it under Decisions.
-5. Points that matter but shouldn't block these phases: tell the user they'll go to a follow-up file, and hold them for Phase 6.
+Start from the open questions raised by spec gaps + exploration findings + the Phase 2 sizing outcome. Then:
+
+@.claude/includes/interview.md
+
+Record any "you decide" call under Decisions. Points that matter but shouldn't block these phases → tell the user they'll go to a follow-up file, and hold them for Phase 6.
 
 ## Phase 5 — Draft the phase breakdown
 
-1. Define each phase: title, branch slug (lowercase, `-`/`_` only, no dots, ~5 words / 40 chars max — same rule as a spec slug, applied to the phase title), ordered `- [ ]` tasks each with done-criteria, key files.
+1. Define each phase: title, branch slug (slug rule per `.claude/includes/slug.md`, applied to the phase title), ordered `- [ ]` tasks each with done-criteria, key files.
 2. A single-phase plan still uses the `Phase 1: <title>` heading.
 3. Sequencing is fixed, not per-plan content: each phase's PR bases on `main` if the previous phase is already merged, otherwise stacks on the previous phase's branch.
 
@@ -70,9 +78,9 @@ Glob/Grep/Read the feature area(s) — existing patterns, conventions, related m
 
 ## Phase 7 — Write the plan
 
-1. Fill `.claude/templates/plan.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+1. Fill `.claude/templates/plan.md` placeholders.
 2. Mandatory: Approach (high-level strategy and key technical decisions — how the spec's requirements will be implemented), Phases (each with Branch/Tasks/Key Files — repeat the `### Phase N: {{title}}` block for each additional phase beyond the first; phases run in order, each phase's PR bases on `main` if the previous phase is already merged, otherwise stacks on the previous phase's branch), QA Plan (checklist of test cases, ticked off by `/codely.qa`).
-3. Optional — omit the whole section if empty, never write "N/A": Out of Scope (items explicitly confirmed out of scope during planning), Decisions (important points confirmed by the user during planning).
+3. Optional (omit a section entirely when empty): Out of Scope (items explicitly confirmed out of scope during planning), Decisions (important points confirmed by the user during planning).
 4. Write to `.specs/<ticketId>_<slug>/plan.md`.
 5. Remind the user: no application code has changed — only the plan (and possibly follow-up) file.
 

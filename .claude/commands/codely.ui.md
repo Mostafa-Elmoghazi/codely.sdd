@@ -11,6 +11,14 @@ disable-model-invocation: true
 
 Turn an approved spec into a set of previewable screen mockups plus a design breakdown at `.specs/<ticketId>_<slug>/design.md`, then commit them (no push) to the ticket's docs branch. Follow the phases in order. No git changes before approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
+**Document authoring.** Applies to every file this command writes from a template:
+
+@.claude/includes/authoring.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -43,16 +51,15 @@ Turn an approved spec into a set of previewable screen mockups plus a design bre
 
 1. From the spec's user stories/requirements/acceptance criteria and Phase 2's findings, propose the set of screens needed to cover the ticket, plus which states matter per screen (empty/loading/error/populated, etc.) and target platform (mobile/website/desktop — per the spec, or ask if unclear).
 2. AskUserQuestion — confirm the inventory, or adjust (add/drop screens or states) before drafting.
-3. Generate each screen's slug (lowercase, `-`/`_` only, no dots, ~5 words/40 chars — same rule as a plan phase slug).
+3. Generate each screen's slug (slug rule per `.claude/includes/slug.md`).
 
 ## Phase 4 — Interview the user (rounds)
 
 **Mandatory — don't start drafting mockups until layout intent, key content, primary actions, and navigation between screens are clear.**
 
-1. List open questions from spec gaps + Phase 2/3 findings.
-2. AskUserQuestion in rounds of up to 4-5 (cap is 4/call — split a 5-question round across two calls).
-3. Digest each round; run another if new questions surface.
-4. On "you decide," state a recommendation and get explicit confirmation.
+Start from the open questions raised by spec gaps + Phase 2/3 findings, then:
+
+@.claude/includes/interview.md
 
 ## Phase 5 — Draft and preview each screen
 
@@ -67,9 +74,9 @@ For each screen confirmed in Phase 3:
 ## Phase 6 — Write the design files
 
 1. For each confirmed screen, save its final HTML/CSS to `.specs/<ticketId>_<slug>/design/<screen-slug>.html` (self-contained, matching the last published Artifact revision).
-2. Fill `.claude/templates/design.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+2. Fill `.claude/templates/design.md` placeholders.
 3. Mandatory: Screens (one entry per screen — repeat `### {{screen_title}}` with its own File/Platform/States for each additional screen), Component Breakdown (reusable/existing vs. new components identified across the screens).
-4. Optional — omit the whole section if empty, never write "N/A": Navigation / Flow (omit if a single screen — how screens connect: entry points, transitions, back/cancel behavior), Non-Functional Notes (responsive breakpoints, accessibility considerations, platform conventions followed), Open Questions (deferred to `follow-up.md` or resolved during `/codely.plan`).
+4. Optional (omit a section entirely when empty): Navigation / Flow (omit if a single screen — how screens connect: entry points, transitions, back/cancel behavior), Non-Functional Notes (responsive breakpoints, accessibility considerations, platform conventions followed), Open Questions (deferred to `follow-up.md` or resolved during `/codely.plan`).
 5. Write to `.specs/<ticketId>_<slug>/design.md`.
 
 ## Phase 7 — Approval loop
