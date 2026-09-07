@@ -11,6 +11,10 @@ disable-model-invocation: true
 
 Implement the next (or a specified) phase from `.specs/<ticketId>_<slug>/plan.md`, verify it, then commit, push, and open it as a PR for review. One run implements one phase. Follow the phases in order. No git changes before approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -82,7 +86,7 @@ Read the phase's Key Files, then Glob/Grep the surrounding area for conventions,
 1. Stage the changed application files plus `plan.md` (and `follow-up.md` if updated).
 2. Commit. Default to one commit for the phase; split further only if the tasks are genuinely separable and the user prefers that. Message: `Implement <phase title> for <ticketId>`.
 3. Push the phase branch, setting upstream if it has none.
-4. Check `plan.md` for unchecked tasks in any *other* phase. None remain → this is the last phase; the PR body must include a `- [ ] QA Done` checkbox (unchecked, ticked by `/codely.qa` once QA passes, gates the merge — QA runs once for the whole plan, not per phase). Other phases still have unchecked tasks → omit the checkbox entirely from this PR's body.
+4. Check `plan.md` for unchecked tasks in any _other_ phase. None remain → this is the last phase; the PR body must include a `- [ ] QA Done` checkbox (unchecked, ticked by `/codely.qa` once QA passes, gates the merge — QA runs once for the whole plan, not per phase). Other phases still have unchecked tasks → omit the checkbox entirely from this PR's body.
 5. This is the last phase (per step 4) and `follow-up.md` exists with any Open or pending items → the PR body must also include a `- [ ] Follow-Up Triaged` checkbox (unchecked, ticked by `/codely.follow-up` once every item is resolved). Not the last phase, or no `follow-up.md`/items yet → omit it; `/codely.follow-up` adds it later if needed.
 6. `gh` available → `gh pr create --draft` (base = the branch from Phase 2, head = the phase branch, title referencing ticket + phase, body linking back to the plan's phase section, plus the `QA Done` and/or `Follow-Up Triaged` checkboxes per steps 4-5 if applicable). `gh` unavailable → tell the user to push and open the PR manually, including the checkboxes per steps 4-5 if applicable.
 7. Confirm: files changed, commit(s), PR URL (or manual-PR instructions), and which gate checkboxes this PR carries.

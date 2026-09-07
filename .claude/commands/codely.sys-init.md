@@ -11,6 +11,14 @@ disable-model-invocation: true
 
 Turn the approved `.sdlc/hld.md`/`.sdlc/lld.md` into a real project structure, one reviewed phase at a time. The first run drafts and gets approval for `.sdlc/construction-plan.md` — a phased breakdown of the scaffolding work, including the exact commands each phase will run. Every later run executes the next unchecked phase: branch, scaffold, verify, approve, commit, push, PR. Re-run this command (after `/clear`) once each phase's PR is merged, until every phase is checked off. Follow the phases in order. No git changes before an approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
+**Document authoring.** Applies to every file this command writes from a template:
+
+@.claude/includes/authoring.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -50,7 +58,7 @@ Turn the approved `.sdlc/hld.md`/`.sdlc/lld.md` into a real project structure, o
 1. AskUserQuestion in rounds of up to 4-5 (cap is 4/call) — confirm the phase breakdown and, for each phase that runs commands, the exact commands themselves. This is the review gate for anything Execution mode will later run — nothing improvised gets in.
 2. Digest each round; run another if new questions surface.
 3. On "you decide," state a recommendation and get explicit confirmation — record it under Decisions.
-4. Fill `.claude/templates/construction-plan.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file. Mandatory: Approach (high-level strategy for turning the HLD's architecture and technology selection into a real, running project structure — how the work is sliced into phases and sequenced), Phases (each with Branch/Tasks/Key Files, and Commands unless the phase only hand-writes files — repeat `### Phase N: {{title}}` for each additional phase; phases run in order, each phase's PR bases on `main`/`master` if the previous phase is already merged, otherwise stacks on the previous phase's branch). Optional — omit the whole section if empty, never write "N/A": Out of Scope (infrastructure/tooling explicitly confirmed out of scope for now, e.g. a deployment target deferred to a later pass), Decisions. Write to `.sdlc/construction-plan.md`.
+4. Fill `.claude/templates/construction-plan.md` placeholders. Mandatory: Approach (high-level strategy for turning the HLD's architecture and technology selection into a real, running project structure — how the work is sliced into phases and sequenced), Phases (each with Branch/Tasks/Key Files, and Commands unless the phase only hand-writes files — repeat `### Phase N: {{title}}` for each additional phase; phases run in order, each phase's PR bases on `main`/`master` if the previous phase is already merged, otherwise stacks on the previous phase's branch). Optional (omit a section entirely when empty): Out of Scope (infrastructure/tooling explicitly confirmed out of scope for now, e.g. a deployment target deferred to a later pass), Decisions. Write to `.sdlc/construction-plan.md`.
 5. Ask the user to review it — approve or request changes, loop until approved.
 6. Approved → `git status --porcelain`, disregarding the newly-written `construction-plan.md` — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort).
 7. Zero commits (`git rev-parse --verify HEAD` fails): tell the user, skip switch/pull, ask whether to branch from the unborn state or commit first. Otherwise switch to trunk if needed, pull only if it tracks a remote.

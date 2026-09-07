@@ -11,6 +11,10 @@ disable-model-invocation: true
 
 Triage `.specs/<ticketId>_<slug>/follow-up.md` one item at a time. Follow the phases in order. No git changes before approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
 `follow-up.md` holds items deferred during interviews or surfaced during implementation, one `### N. {{item_title}}` entry per item with a `**Surfaced:**`/`**Description:**`/`**Status:**` block — triaged one at a time by this command.
 
 ## Context
@@ -82,7 +86,7 @@ For each Open item:
 1. Stage `follow-up.md` plus any application files changed by Integrate items.
 2. Commit: `Triage follow-up items for <ticketId>`.
 3. Push the current branch.
-4. `gh` available → find the open PR for this branch. Its body has no `Follow-Up Triaged` checkbox → add `- [ ] Follow-Up Triaged` first. Every item now Triaged (none Open or pending) → flip it to `- [x] Follow-Up Triaged` via `gh pr edit --body`. Add a PR comment summarizing dispositions (Promoted/Integrated/Dropped/Other counts, with ticket links for promoted items). `gh` unavailable → tell the user to tick it manually and share the summary.
+4. `gh` available → find the open PR for this branch, fetch its current body. No `Follow-Up Triaged` checkbox present → add `- [ ] Follow-Up Triaged` to it. Every item now Triaged (none Open or pending) → flip it to `- [x] Follow-Up Triaged`. Either way, write the updated body back via the REST API: `gh api repos/{owner}/{repo}/pulls/<number> -X PATCH -f body=<updated body>` (not `gh pr edit --body`, which drives a GraphQL mutation that can fail with a `Projects (classic)` deprecation error on repos with classic project boards). Add a PR comment summarizing dispositions (Promoted/Integrated/Dropped/Other counts, with ticket links for promoted items). `gh` unavailable → tell the user to tick it manually and share the summary.
 5. Items still pending (promotions awaiting a ticket ID) → leave the checkbox unticked, tell the user why, and that re-running `/codely.follow-up` later will finish the job.
 6. Confirm: `follow-up.md` path, PR URL, summary.
 

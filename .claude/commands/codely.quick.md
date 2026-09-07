@@ -11,6 +11,14 @@ disable-model-invocation: true
 
 Turn a ticket ID + brief description directly into a reviewed, working implementation — interview, write a single-phase `quick-plan.md`, implement it, and open a draft PR, all in one run. Follow the phases in order. No git changes before the relevant approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
+**Document authoring.** Applies to every file this command writes from a template:
+
+@.claude/includes/authoring.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -42,7 +50,7 @@ Turn a ticket ID + brief description directly into a reviewed, working implement
 
 ## Phase 3 — Generate the slug (new tickets only)
 
-From the ticket title: lowercase, `-`/`_` only, no dots, ~5 words / 40 chars max. Generate once, reuse everywhere below.
+@.claude/includes/slug.md
 
 ## Phase 4 — Codebase exploration & size check
 
@@ -53,11 +61,11 @@ From the ticket title: lowercase, `-`/`_` only, no dots, ~5 words / 40 chars max
 
 **Mandatory — don't proceed until scope, edge cases, requirements, technical approach, and constraints are all clear.**
 
-1. List open questions from Phase 0 + Phase 4 findings — this interview covers what a spec interview and a plan interview would each cover, combined.
-2. AskUserQuestion in rounds of up to 4-5 (cap is 4/call — split a 5-question round across two calls).
-3. Digest each round; run another if new questions surface.
-4. On "you decide," state a recommendation and get explicit confirmation.
-5. Points that matter but shouldn't block this change: tell the user they'll go to a follow-up file, and hold them for Phase 6.
+Start from the open questions raised by Phase 0 + Phase 4 findings — this interview covers what a spec interview and a plan interview would each cover, combined. Then:
+
+@.claude/includes/interview.md
+
+Points that matter but shouldn't block this change → tell the user they'll go to a follow-up file, and hold them for Phase 6.
 
 ## Phase 6 — Deferred items
 
@@ -67,9 +75,9 @@ From the ticket title: lowercase, `-`/`_` only, no dots, ~5 words / 40 chars max
 
 ## Phase 7 — Write the quick plan
 
-1. Fill `.claude/templates/quick-plan.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+1. Fill `.claude/templates/quick-plan.md` placeholders.
 2. Mandatory: Summary (what's being requested, why, and what success looks like), Context (background that led to this request), Approach (high-level strategy and key technical decisions — how this will be implemented), Tasks, Key Files, Acceptance Criteria (checklist that defines "done"), QA Plan (checklist of test cases, ticked off during implementation and by `/codely.qa` if run afterward).
-3. Optional — omit the whole section if empty, never write "N/A": Out of Scope (what this explicitly doesn't cover), Decisions (important points confirmed by the user during the interview).
+3. Optional (omit a section entirely when empty): Out of Scope (what this explicitly doesn't cover), Decisions (important points confirmed by the user during the interview).
 4. Branch: `<ticketId>/<slug>/quick`, exact order.
 5. Write to `.specs/<ticketId>_<slug>/quick-plan.md`, creating the directory if needed.
 
@@ -80,12 +88,8 @@ From the ticket title: lowercase, `-`/`_` only, no dots, ~5 words / 40 chars max
 
 ## Phase 9 — Branch creation & plan commit
 
-**Don't start until Phase 8 approval is explicit.**
+@.claude/includes/git-preflight.md
 
-1. `git status --porcelain`, disregarding `quick-plan.md`/`follow-up.md` just written in Phase 7 — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
-2. Trunk: `CLAUDE.md`'s choice, else `main`, else `master`. Ask if still ambiguous.
-3. Zero commits (`git rev-parse --verify HEAD` fails): tell the user, skip switch/pull, ask whether to branch from the unborn state or commit first.
-4. Otherwise: switch to trunk if needed; pull only if it tracks a remote.
 5. Create/checkout `<ticketId>/<slug>/quick`. If it already exists, check it out and note how far ahead of trunk it is.
 6. Stage and commit `quick-plan.md` (and `follow-up.md` if created): `Add quick plan for <ticketId>`.
 7. Don't push yet — implementation is still pending.

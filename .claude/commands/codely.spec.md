@@ -11,6 +11,14 @@ disable-model-invocation: true
 
 Turn a ticket ID + brief description into an approved spec under `.specs/`, then cut the ticket's local branch with the spec committed to it. Follow the phases in order. No git changes before the spec's approval, except `ticket-format.md` (Phase 1), which is shared project config committed immediately once the user confirms it. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
+**Plain-language standard.** Applies to every question this command asks and every file it writes:
+
+@.claude/includes/clarity.md
+
+**Document authoring.** Applies to every file this command writes from a template:
+
+@.claude/includes/authoring.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
@@ -41,7 +49,7 @@ Turn a ticket ID + brief description into an approved spec under `.specs/`, then
 
 ## Phase 3 — Generate the slug (new tickets only)
 
-From the ticket title: lowercase, `-`/`_` only, no dots, ~5 words / 40 chars max. Generate once, reuse everywhere below.
+@.claude/includes/slug.md
 
 ## Phase 4 — Codebase exploration
 
@@ -51,16 +59,15 @@ Glob/Grep/Read the feature area — similar features, conventions, tests, relate
 
 **Mandatory — don't proceed until scope, edge cases, functional/non-functional requirements, and constraints are all clear.**
 
-1. List open questions from Phase 0 + Phase 4 findings.
-2. AskUserQuestion in rounds of up to 4-5 (cap is 4/call — split a 5-question round across two calls). Clear labels, short trade-offs.
-3. Digest each round; run another if new questions surface.
-4. On "you decide," state a recommendation and get explicit confirmation.
+Start from the open questions raised by Phase 0 + Phase 4 findings, then:
+
+@.claude/includes/interview.md
 
 ## Phase 6 — Write the spec
 
-1. Fill `.claude/templates/spec.md` placeholders — the template holds only headers and placeholder tokens, so use the guidance below for what belongs in each section; don't carry this guidance itself into the written file.
+1. Fill `.claude/templates/spec.md` placeholders.
 2. Mandatory: Branch, Ticket ID, Summary (what's being requested, why, and what success looks like), Context (background that led to this request), Functional Requirements (testable behaviors the system must implement), Acceptance Criteria (checklist that defines "done").
-3. Optional — omit the whole section if empty, never write "N/A": Out of Scope (what this explicitly doesn't cover), User Stories (omit if not user-facing; `"As a ⟨role⟩, I want ⟨capability⟩, so that ⟨benefit⟩."`), Edge Cases, Non-Functional Requirements (performance, security, accessibility, compatibility, etc.), Constraints & Assumptions.
+3. Optional (omit a section entirely when empty): Out of Scope (what this explicitly doesn't cover), User Stories (omit if not user-facing; `"As a ⟨role⟩, I want ⟨capability⟩, so that ⟨benefit⟩."`), Edge Cases, Non-Functional Requirements (performance, security, accessibility, compatibility, etc.), Constraints & Assumptions.
 4. Branch: `<ticketId>/<slug>/feature`, exact order.
 5. Write to `.specs/<ticketId>_<slug>/spec.md`, creating the directory if needed.
 
@@ -71,12 +78,8 @@ Glob/Grep/Read the feature area — similar features, conventions, tests, relate
 
 ## Phase 8 — Branch creation and commit
 
-**Don't start until Phase 7 approval is explicit.**
+@.claude/includes/git-preflight.md
 
-1. `git status --porcelain`, disregarding the newly-written `spec.md` — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
-2. Trunk: `CLAUDE.md`'s choice, else `main`, else `master`. Ask if still ambiguous.
-3. Zero commits (`git rev-parse --verify HEAD` fails): tell the user, skip switch/pull, ask whether to branch from the unborn state or commit first.
-4. Otherwise: switch to trunk if needed; pull only if it tracks a remote.
 5. Create/checkout `<ticketId>/<slug>/feature`. If it already exists, check it out and note how far ahead of trunk it is.
 6. Stage and commit `spec.md` if it has uncommitted changes: `Add spec for <ticketId>` for a new spec, `Update spec for <ticketId>` for a revision (Phase 2's Resume/revise path). No changes to commit → skip silently.
 7. Never push.
