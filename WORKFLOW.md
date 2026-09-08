@@ -57,7 +57,7 @@ Waterfall runs these once, in strict sequence; Agile/iterative models loop throu
 | Planning | `/sdlc.plan` |
 | Requirements Analysis | `/sdlc.req-analysis` |
 | Design | `/sdlc.system-design`, `/codely.wireframe`, `/codely.ui-template` (project-wide) and `/codely.sys-design` / `/codely.ui` (per ticket) |
-| Implementation | `/codely.sys-init` (project scaffold) and `/codely.spec` → `/codely.plan` → `/codely.implement` (per ticket) |
+| Implementation | `/codely.sys-init` (project scaffold) and `/codely.spec` → `/codely.plan` → `/codely.implement` (per ticket); `/codely.address-review` folds reviewer comments on an open PR back into the code |
 | Testing / QA | `/codely.qa` |
 | Deployment | *not yet covered* |
 | Maintenance | `/codely.follow-up` covers post-delivery triage; ongoing production monitoring/operations aren't covered |
@@ -177,7 +177,7 @@ Everything from here on works **per ticket**, under `.specs/TICKET-ID_slug/`, an
 | Root-cause gate | — | — | Mandatory: root cause must be confirmed by you before any fix code is written |
 | Regression test | Optional (via the plan's QA Plan) | Optional (via the plan's QA Plan) | Mandatory: written failing (red) and committed *before* the fix, re-run passing (green) *after* |
 
-All three converge on the same finishing move: `/codely.qa` verifies and ticks a `QA Done` PR checkbox (never fixes — it stops and reports on failure), and `/codely.follow-up` triages anything deferred along the way and ticks a `Follow-Up Triaged` checkbox. Both checkboxes, where they apply, gate the PR's merge.
+All three converge on the same finishing moves: `/codely.address-review` folds the first round of PR review comments back in (fix / reply / resolve each thread, no approval gate), `/codely.qa` verifies and ticks a `QA Done` PR checkbox (never fixes — it stops and reports on failure), and `/codely.follow-up` triages anything deferred along the way and ticks a `Follow-Up Triaged` checkbox. Both checkboxes, where they apply, gate the PR's merge.
 
 ### 4.1 Multi-Phase Flow
 
@@ -286,7 +286,7 @@ The PR that lands references both commits by identity: the regression test's com
 
 These hold across every command in the family:
 
-- **Approval is a chat-only gate.** Every phase that writes an artifact or changes code ends with "review it, approve or request changes" before anything git-related happens. The rule is "no git changes before approval" everywhere — the only narrow exception is `.claude/includes/ticket-format.md`, which the first ticket-touching command (`/codely.spec`, `/codely.quick`, or `/codely.bug-fix`) drafts and commits immediately on first use, since it's shared project config rather than part of that ticket's own artifact.
+- **Approval is a chat-only gate.** Every phase that writes an artifact or changes code ends with "review it, approve or request changes" before anything git-related happens. The rule is "no git changes before approval" everywhere, with two narrow exceptions: `.claude/includes/ticket-format.md`, which the first ticket-touching command (`/codely.spec`, `/codely.quick`, or `/codely.bug-fix`) drafts and commits immediately on first use, since it's shared project config rather than part of that ticket's own artifact; and `/codely.address-review`, which is built to run autonomously right after a PR is opened, so it triages, fixes, verifies, and pushes in one pass — still asking only when a fix turns on a material decision, and leaving anything it disagrees with unresolved for a human.
 - **`.sdlc/` is project-wide; `.specs/TICKET-ID_slug/` is per-ticket.** Nothing in `.sdlc/` is ever branched or committed by the `sdlc.*` commands themselves (chat-only, by design). `codely.sys-init` is the one exception that does commit `.sdlc/` content (`construction-plan.md`), since its output is meant to become real, git-tracked project state; `codely.backlog` stays chat-only like the `sdlc.*` commands — its backlog is a proposal for you to act on, not itself part of the tracked history.
 - **Resumability is built in, two ways.** Multi-topic interview artifacts (`sdlc.*`'s charter/plan/SRS/use-case-model/HLD/LLD) track a `## Status` checklist of interview topics, checked off as each is resolved. Phased execution artifacts (`plan.md`, `quick-plan.md`, `bug-fix-plan.md`, `construction-plan.md`) track progress as `- [ ]` task checkboxes within each phase instead. Either way, `/clear`-ing and re-running the same command picks up exactly where you left off rather than re-asking settled questions.
 - **PR gating checkboxes.** `- [ ] QA Done` (ticked only by `/codely.qa`, only once nothing's Failed) and `- [ ] Follow-Up Triaged` (ticked only by `/codely.follow-up`, only once every item is resolved) appear in a PR body when applicable and are meant to gate that PR's merge.

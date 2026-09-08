@@ -169,6 +169,13 @@ Triage `follow-up.md` one item at a time: **Promote** (create a real ticket, via
 - **Git:** commits, pushes, ticks `Follow-Up Triaged` once every item is resolved
 - **Next:** get the PR reviewed and merged
 
+#### `/codely.address-review [ticket-id]`
+Fetch every unresolved review thread on the current branch's PR, then address each one in a single pass — a code fix, a reply-only answer, or a reasoned rebuttal — and push, reply, and resolve on GitHub. **No chat approval gate**; built to run right after a PR gets its first round of comments. Threads it disagrees with are replied to but left unresolved for the reviewer. Like `/codely.qa` and `/codely.follow-up`, it's flow-agnostic — works on a Multi-Phase, Quick, or Bug-Fix PR. Requires `gh`.
+- **Reads:** the PR's review threads (via `gh`), `spec.md`, `system-design.md`/`design.md`, the plan document, `follow-up.md` (if present)
+- **Writes:** application code for fixes; `follow-up.md` (if new deferred items surface)
+- **Git:** one commit `Address review comments for <ticketId>` on the existing PR branch, pushed; one reply per thread; resolves every fixed or answered thread
+- **Next:** re-run after the reviewer responds to any unresolved threads; `/codely.qa` if code changed after QA already ran; otherwise back to the reviewer
+
 ### Alternate Entry Points
 
 Bypass the multi-phase flow for cases that don't need it.
@@ -217,6 +224,7 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 ├── codely.implement.md     ← /codely.implement — executes an implementation plan
 ├── codely.qa.md            ← /codely.qa — verifies an implementation against its spec/plan
 ├── codely.follow-up.md     ← /codely.follow-up — captures post-delivery feedback and next steps
+├── codely.address-review.md ← /codely.address-review — fetch a PR's unresolved review threads, then fix/reply/resolve each in one gateless pass
 ├── codely.bug-fix.md       ← /codely.bug-fix — reproduce, root-cause, and fix a reported bug behind a red→green regression test
 ├── codely.ui.md            ← /codely.ui — approved spec to previewable screen mockups + design breakdown
 ├── sdlc.plan.md            ← /sdlc.plan — SDLC planning phase: idea → approved project charter + project plan
@@ -254,7 +262,7 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 The essentials — see [WORKFLOW.md](./WORKFLOW.md)'s Cross-Cutting Conventions section for the full detail:
 
 - **`.sdlc/`** holds project-wide artifacts (SDLC phases + `codely.wireframe`/`codely.ui-template`/`codely.sys-init`/`codely.backlog`'s output). **`.specs/TICKET-ID_slug/`** holds one ticket's artifacts. **`.courses/course-slug/`** holds one course's curriculum + lessons (`trainer.*`), entirely separate from the SDLC/Implementation flows. Never mixed.
-- **No git changes before approval**, everywhere — every artifact-producing phase ends in a chat-only review before any branch/commit/push.
+- **No git changes before approval**, everywhere — every artifact-producing phase ends in a chat-only review before any branch/commit/push. The sole exception is `/codely.address-review`, which runs its whole fix → push → reply → resolve pass without a gate by design, asking only when a fix turns on a material decision.
 - **Resumable by design** — `/clear` mid-flow and re-run the same command; interview artifacts resume via a `## Status` topic checklist, phased/task artifacts resume via `- [ ]` task checkboxes.
 - **`QA Done`** and **`Follow-Up Triaged`** are PR checkboxes ticked only by `/codely.qa` and `/codely.follow-up` respectively, gating that PR's merge where they apply.
 - **`gh` CLI is optional** — every push/PR step falls back to manual instructions if it's unavailable.
