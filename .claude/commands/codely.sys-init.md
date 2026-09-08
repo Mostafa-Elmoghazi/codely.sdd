@@ -55,7 +55,7 @@ Turn the approved `.sdlc/hld.md`/`.sdlc/lld.md` into a real project structure, o
 
 **Mandatory — don't write the plan until the phase breakdown, sequencing, and every phase's exact commands are confirmed.**
 
-1. AskUserQuestion in rounds of up to 4-5 (cap is 4/call) — confirm the phase breakdown and, for each phase that runs commands, the exact commands themselves. This is the review gate for anything Execution mode will later run — nothing improvised gets in.
+1. AskUserQuestion in rounds (cap 4/call — split a 5-question round across two calls) — confirm the phase breakdown and, for each phase that runs commands, the exact commands themselves. This is the review gate for anything Execution mode will later run — nothing improvised gets in.
 2. Digest each round; run another if new questions surface.
 3. On "you decide," state a recommendation and get explicit confirmation — record it under Decisions.
 4. Fill `.claude/templates/construction-plan.md` placeholders. Mandatory: Approach (high-level strategy for turning the HLD's architecture and technology selection into a real, running project structure — how the work is sliced into phases and sequenced), Phases (each with Branch/Tasks/Key Files, and Commands unless the phase only hand-writes files — repeat `### Phase N: {{title}}` for each additional phase; phases run in order, each phase's PR bases on `main`/`master` if the previous phase is already merged, otherwise stacks on the previous phase's branch). Optional (omit a section entirely when empty): Out of Scope (infrastructure/tooling explicitly confirmed out of scope for now, e.g. a deployment target deferred to a later pass), Decisions. Write to `.sdlc/construction-plan.md`.

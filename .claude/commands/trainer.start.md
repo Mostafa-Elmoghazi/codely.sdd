@@ -33,7 +33,7 @@ Act as a professional trainer. Turn a course brief into an approved curriculum �
 
 ## Phase 1 — Generate the slug and check for an existing course
 
-1. From the brief's likely title: lowercase, `-`/`_` only, no dots, ~5 words/40 chars max.
+1. Derive the course slug from the brief's likely title (slug rule per `.claude/includes/slug.md`).
 2. Glob `.courses/` for a matching or near-matching directory.
 3. **Found**, with a `curriculum.md` inside: read + summarize it, AskUserQuestion — Resume/revise (reuse slug, skip the interview, jump to Phase 3 to edit) / Start over (reuse slug, redo the interview) / Cancel.
 4. **Not found:** go to Phase 2.

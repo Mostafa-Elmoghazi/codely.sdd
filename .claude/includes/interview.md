@@ -6,6 +6,6 @@
   calls under a Decisions section).
 -->
 
-1. AskUserQuestion in rounds of up to 4-5 (cap is 4/call — split a 5-question round across two calls). Clear labels, short trade-offs.
+1. AskUserQuestion in rounds — cap 4 questions/call; split a 5-question round across two calls. Clear labels, short trade-offs.
 2. Digest each round; run another if new questions surface.
 3. On "you decide," state a recommendation and get explicit confirmation.
