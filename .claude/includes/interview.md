@@ -8,4 +8,4 @@
 
 1. AskUserQuestion in rounds — cap 4 questions/call; split a 5-question round across two calls. Clear labels, short trade-offs.
 2. Digest each round; run another if new questions surface.
-3. On "you decide," state a recommendation and get explicit confirmation.
+3. Every round carries your recommendation (per the clarity standard); on an explicit "you decide," confirm that recommendation before acting on it.
