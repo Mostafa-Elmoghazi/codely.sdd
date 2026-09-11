@@ -15,6 +15,8 @@ Turn an approved spec into a phased implementation plan at `.specs/<ticketId>_<s
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -52,6 +54,8 @@ Turn an approved spec into a phased implementation plan at `.specs/<ticketId>_<s
 
 ## Phase 3 — Codebase exploration
 
+@.claude/includes/claude-md-read-first.md
+
 Glob/Grep/Read the feature area(s) — existing patterns, conventions, related modules, tests. Don't ask the user what the code already answers.
 
 ## Phase 4 — Interview the user (rounds)
@@ -69,6 +73,7 @@ Record any "you decide" call under Decisions. Points that matter but shouldn't b
 1. Define each phase: title, branch slug (slug rule per `.claude/includes/slug.md`, applied to the phase title), ordered `- [ ]` tasks each with done-criteria, key files.
 2. A single-phase plan still uses the `Phase 1: <title>` heading.
 3. Sequencing is fixed, not per-plan content: each phase's PR bases on `main` if the previous phase is already merged, otherwise stacks on the previous phase's branch.
+4. A phase's Key Files fall under an app/package that has its own `CLAUDE.md`, and this phase's work looks likely to make it stale (new files it should list, a changed convention) → note that file alongside Key Files. This is a flag for `/codely.implement` to act on, not a change made here — this command never touches application code.
 
 ## Phase 6 — Deferred items
 
@@ -80,7 +85,7 @@ Record any "you decide" call under Decisions. Points that matter but shouldn't b
 
 1. Fill `.claude/templates/plan.md` placeholders.
 2. Mandatory: Approach (high-level strategy and key technical decisions — how the spec's requirements will be implemented), Phases (each with Branch/Tasks/Key Files — repeat the `### Phase N: {{title}}` block for each additional phase beyond the first; phases run in order, each phase's PR bases on `main` if the previous phase is already merged, otherwise stacks on the previous phase's branch), QA Plan (checklist of test cases, ticked off by `/codely.qa`).
-3. Optional (omit a section entirely when empty): Out of Scope (items explicitly confirmed out of scope during planning), Decisions (important points confirmed by the user during planning).
+3. Optional (omit a section entirely when empty): Notes (items explicitly confirmed out of scope during planning, tagged `[Out of scope]`; important points confirmed by the user during planning, tagged `[Decision]`).
 4. Write to `.specs/<ticketId>_<slug>/plan.md`.
 5. Remind the user: no application code has changed — only the plan (and possibly follow-up) file.
 

@@ -15,6 +15,8 @@ Turn a ticket ID + brief description into an approved spec under `.specs/`, then
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -53,6 +55,8 @@ Turn a ticket ID + brief description into an approved spec under `.specs/`, then
 
 ## Phase 4 — Codebase exploration
 
+@.claude/includes/claude-md-read-first.md
+
 Glob/Grep/Read the feature area — similar features, conventions, tests, related specs. Don't ask the user what the code already answers.
 
 ## Phase 5 — Interview the user (rounds)
@@ -66,8 +70,8 @@ Start from the open questions raised by Phase 0 + Phase 4 findings, then:
 ## Phase 6 — Write the spec
 
 1. Fill `.claude/templates/spec.md` placeholders.
-2. Mandatory: Branch, Ticket ID, Summary (what's being requested, why, and what success looks like), Context (background that led to this request), Functional Requirements (testable behaviors the system must implement), Acceptance Criteria (checklist that defines "done").
-3. Optional (omit a section entirely when empty): Out of Scope (what this explicitly doesn't cover), User Stories (omit if not user-facing; `"As a ⟨role⟩, I want ⟨capability⟩, so that ⟨benefit⟩."`), Edge Cases, Non-Functional Requirements (performance, security, accessibility, compatibility, etc.), Constraints & Assumptions.
+2. Mandatory: Branch, Ticket ID, Overview (what's being requested, why, what success looks like, background that led to this request, and — as a closing line, if applicable — what this explicitly doesn't cover), Requirements (testable behaviors the system must implement; tag non-functional items inline with `[NFR]` — performance, security, accessibility, compatibility, etc. — and any hard limit or assumption with `[Constraint]`), Acceptance Criteria (checklist that defines "done").
+3. Optional (omit a section entirely when empty): Scenarios (user stories — `"As a ⟨role⟩, I want ⟨capability⟩, so that ⟨benefit⟩."` — and/or edge cases; omit if not user-facing and nothing edge-case-worthy came up).
 4. Branch: `<ticketId>/<slug>/feature`, exact order.
 5. Write to `.specs/<ticketId>_<slug>/spec.md`, creating the directory if needed.
 

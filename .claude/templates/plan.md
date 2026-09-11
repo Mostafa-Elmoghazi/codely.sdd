@@ -7,13 +7,9 @@
 
 {{approach}}
 
-## Out of Scope
+## Notes
 
-{{out_of_scope}}
-
-## Decisions
-
-{{decisions}}
+- {{note}}
 
 ## Phases
 

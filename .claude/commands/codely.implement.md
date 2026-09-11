@@ -7,13 +7,15 @@ disable-model-invocation: true
 
 # codely.implement
 
-> **Scope guardrail:** implements only the current phase's tasks from an approved plan — no unrelated refactors, no scope beyond what's listed. Within `.specs/<ticketId>_<slug>/`, touches only `plan.md` (checkbox updates) and, if deferred items surface, `follow-up.md` — never `spec.md`. Outputs are the application code changes for this phase and — after approval — a commit + push + PR on a new phase branch.
+> **Scope guardrail:** implements only the current phase's tasks from an approved plan — no unrelated refactors, no scope beyond what's listed. Within `.specs/<ticketId>_<slug>/`, touches only `plan.md` (checkbox updates) and, if deferred items surface, `follow-up.md` — never `spec.md`. Outputs are the application code changes for this phase, updates to any already-existing app/package `CLAUDE.md` those changes make stale (never creates a new one — that's `/codely.sys-init`'s job), and — after approval — a commit + push + PR on a new phase branch.
 
 Implement the next (or a specified) phase from `.specs/<ticketId>_<slug>/plan.md`, verify it, then commit, push, and open it as a PR for review. One run implements one phase. Follow the phases in order. No git changes before approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
 **Plain-language standard.** Applies to every question this command asks and every file it writes:
 
 @.claude/includes/clarity.md
+
+@.claude/includes/no-ai-attribution.md
 
 ## Context
 
@@ -56,6 +58,8 @@ Implement the next (or a specified) phase from `.specs/<ticketId>_<slug>/plan.md
 
 ## Phase 3 — Codebase exploration
 
+@.claude/includes/claude-md-read-first.md
+
 Read the phase's Key Files, then Glob/Grep the surrounding area for conventions, patterns, and existing tests not already surfaced by the spec or plan. Read-only.
 
 ## Phase 4 — Implement the phase's tasks
@@ -65,6 +69,7 @@ Read the phase's Key Files, then Glob/Grep the surrounding area for conventions,
 3. Follow the conventions already in the files/modules you touch.
 4. Mark a task `- [x]` in `plan.md` as soon as its done-criteria is met — keeps progress resumable if the run stops early.
 5. Necessary work surfaces outside this phase's task list → don't do it silently. Note it in `follow-up.md` (create from `.claude/templates/follow-up.md` if needed, or append) and flag it to the user.
+6. @.claude/includes/claude-md-sync.md
 
 ## Phase 5 — Verify
 

@@ -17,6 +17,8 @@ Fetch every unresolved review thread on the PR for the current branch and clear 
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 ## Context
 
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none)"`

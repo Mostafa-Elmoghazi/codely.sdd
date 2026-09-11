@@ -7,13 +7,15 @@ disable-model-invocation: true
 
 # codely.bug-fix
 
-> **Scope guardrail:** for bug fixes only — root cause must be confirmed with the user before any fix code is written, and the fix must be proven by a regression test shown failing before the fix and passing after (each in its own commit). Within `.specs/<ticketId>_<slug>/`, writes only `bug-fix-plan.md` and, if deferred items surface, `follow-up.md`. Two chat-only approval gates — plan, then implementation — stand before any git-mutating step. Outputs are the bug-fix plan, a red-then-green regression test, the application code for the fix, and — after both approvals — a commit history, push, and draft PR on one new branch.
+> **Scope guardrail:** for bug fixes only — root cause must be confirmed with the user before any fix code is written, and the fix must be proven by a regression test shown failing before the fix and passing after (each in its own commit). Within `.specs/<ticketId>_<slug>/`, writes only `bug-fix-plan.md` and, if deferred items surface, `follow-up.md`. Two chat-only approval gates — plan, then implementation — stand before any git-mutating step. Outputs are the bug-fix plan, a red-then-green regression test, the application code for the fix, updates to any already-existing app/package `CLAUDE.md` the fix makes stale (never creates a new one — that's `/codely.sys-init`'s job), and — after both approvals — a commit history, push, and draft PR on one new branch.
 
 Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working fix — investigate, confirm root cause, write a single `bug-fix-plan.md`, implement behind a failing→passing regression test, and open a draft PR, all in one run. Follow the phases in order. No git changes before the relevant approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
 **Plain-language standard.** Applies to every question this command asks and every file it writes:
 
 @.claude/includes/clarity.md
+
+@.claude/includes/no-ai-attribution.md
 
 **Document authoring.** Applies to every file this command writes from a template:
 
@@ -62,6 +64,8 @@ Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working 
 ## Phase 5 — Investigate
 
 Read-only exploration — don't ask the user what the code and its history already answer.
+
+@.claude/includes/claude-md-read-first.md
 
 1. Trace the failure from symptom back to source: Glob/Grep/Read the implicated code path.
 2. `git log`/`git blame` the relevant files — is this a regression (find the introducing commit) or a longstanding defect?
@@ -130,6 +134,7 @@ The proof that this fix works starts here, before any fix code is touched.
 4. Necessary work surfaces outside these tasks → don't do it silently. Note it in `follow-up.md` (create from `.claude/templates/follow-up.md` if needed, or append) and flag it to the user.
 5. Regression test was written in Phase 12 → re-run it now. It must pass. Doesn't pass → keep fixing; never weaken the test to force a pass.
 6. Capture the passing output verbatim. Record it in Verification → Regression Test → "After fix (green)", referencing the fix commit by the exact message it will be committed with in Phase 16 (that commit doesn't exist yet — it's identified by message, not SHA).
+7. @.claude/includes/claude-md-sync.md
 
 ## Phase 14 — Verify
 

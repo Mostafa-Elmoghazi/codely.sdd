@@ -7,13 +7,15 @@ disable-model-invocation: true
 
 # codely.sys-init
 
-> **Scope guardrail:** the only command in this family allowed to write, modify, or install real project files/dependencies outside `.sdlc/`/`.specs/` — and only by executing a construction plan the user already interviewed and approved. Never runs a scaffolding/install command that isn't already listed in that phase's approved Commands. Outputs are `.sdlc/construction-plan.md` (committed to its own `sys-init/plan` branch) and, per phase thereafter, real project files/directories plus a commit + push + PR on a `sys-init/<phase-slug>` branch.
+> **Scope guardrail:** the only command in this family allowed to write, modify, or install real project files/dependencies outside `.sdlc/`/`.specs/` — and only by executing a construction plan the user already interviewed and approved. Never runs a scaffolding/install command that isn't already listed in that phase's approved Commands. Outputs are `.sdlc/construction-plan.md` (committed to its own `sys-init/plan` branch) and, per phase thereafter, real project files/directories — including a starter `CLAUDE.md` for each new top-level app/package it scaffolds, and updates to any already-existing one a phase's changes make stale — plus a commit + push + PR on a `sys-init/<phase-slug>` branch.
 
 Turn the approved `.sdlc/hld.md`/`.sdlc/lld.md` into a real project structure, one reviewed phase at a time. The first run drafts and gets approval for `.sdlc/construction-plan.md` — a phased breakdown of the scaffolding work, including the exact commands each phase will run. Every later run executes the next unchecked phase: branch, scaffold, verify, approve, commit, push, PR. Re-run this command (after `/clear`) once each phase's PR is merged, until every phase is checked off. Follow the phases in order. No git changes before an approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
 **Plain-language standard.** Applies to every question this command asks and every file it writes:
 
 @.claude/includes/clarity.md
+
+@.claude/includes/no-ai-attribution.md
 
 **Document authoring.** Applies to every file this command writes from a template:
 
@@ -82,6 +84,7 @@ Turn the approved `.sdlc/hld.md`/`.sdlc/lld.md` into a real project structure, o
 4. Follow the conventions already established by any modules earlier phases scaffolded.
 5. Mark a task `- [x]` in `construction-plan.md` as soon as its done-criteria is met — keeps progress resumable if the run stops early.
 6. Necessary work surfaces outside this phase's task list → don't do it silently. Flag it to the user; capture it as a new phase or under Decisions if they want it kept.
+7. A task scaffolds a brand-new top-level app/package directory → give it a starter `CLAUDE.md`: what it is in one line, a pointer to its `README.md` for usage, and its key entry-point files — match the style of any `CLAUDE.md` already in the repo. For an app/package that already existed before this phase: @.claude/includes/claude-md-sync.md
 
 ## Phase 6 — Verify
 

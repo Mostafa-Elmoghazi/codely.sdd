@@ -15,6 +15,8 @@ Turn a ticket ID + a question about a proposed piece of work into an evidence-ba
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -67,6 +69,8 @@ Turn a ticket ID + a question about a proposed piece of work into an evidence-ba
 Work through the unknowns from Phase 4, gathering evidence for each. **Start with the codebase** — most of the answer is usually already there.
 
 ### Codebase (read-only)
+
+@.claude/includes/claude-md-read-first.md
 
 Glob/Grep/Read across the repo for anything that bears on the decision:
 
@@ -140,6 +144,6 @@ Record any "you decide" call. Points that matter but sit outside this decision �
 5. On a preserve path: stage only `investigation.md` and `summary.md` (and `follow-up.md` if created), commit `Add investigation for <ticketId>`. Never push.
 6. Confirm: investigation path, summary path, verdict, current branch. Then:
    - **Proceed:** run `/clear`, then `/codely.spec` — the investigation's recommended option and findings are the spec's starting point.
-   - **Proceed with conditions:** same, and tell the user to carry the conditions into the spec's Constraints & Assumptions.
+   - **Proceed with conditions:** same, and tell the user to carry the conditions into the spec's Requirements, tagged `[Constraint]`.
    - **Do not proceed:** done — nothing further unless the question changes.
    - **Needs more investigation:** state the narrowed unknowns for the next `/codely.investigate` run.

@@ -7,13 +7,15 @@ disable-model-invocation: true
 
 # codely.quick
 
-> **Scope guardrail:** for small, well-understood changes only — folds spec and plan into one `quick-plan.md` and skips their separate review cycles. Within `.specs/<ticketId>_<slug>/`, writes only `quick-plan.md` and, if deferred items surface, `follow-up.md`. Two chat-only approval gates — plan, then implementation — stand before any git-mutating step. Outputs are the quick plan, the application code for this change, and — after both approvals — a commit history, push, and draft PR on one new branch.
+> **Scope guardrail:** for small, well-understood changes only — folds spec and plan into one `quick-plan.md` and skips their separate review cycles. Within `.specs/<ticketId>_<slug>/`, writes only `quick-plan.md` and, if deferred items surface, `follow-up.md`. Two chat-only approval gates — plan, then implementation — stand before any git-mutating step. Outputs are the quick plan, the application code for this change, updates to any already-existing app/package `CLAUDE.md` that change makes stale (never creates a new one — that's `/codely.sys-init`'s job), and — after both approvals — a commit history, push, and draft PR on one new branch.
 
 Turn a ticket ID + brief description directly into a reviewed, working implementation — interview, write a single-phase `quick-plan.md`, implement it, and open a draft PR, all in one run. Follow the phases in order. No git changes before the relevant approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
 **Plain-language standard.** Applies to every question this command asks and every file it writes:
 
 @.claude/includes/clarity.md
+
+@.claude/includes/no-ai-attribution.md
 
 **Document authoring.** Applies to every file this command writes from a template:
 
@@ -54,6 +56,8 @@ Turn a ticket ID + brief description directly into a reviewed, working implement
 
 ## Phase 4 — Codebase exploration & size check
 
+@.claude/includes/claude-md-read-first.md
+
 1. Glob/Grep/Read the feature area — similar features, conventions, tests, related specs. Don't ask the user what the code already answers.
 2. Rough-estimate files touched and complexity. Clearly past a quick fix (well beyond ~10 files, cross-cutting/architectural, many open unknowns) → tell the user, AskUserQuestion — switch to `/codely.spec` instead (stop here) / continue with quick anyway.
 
@@ -76,8 +80,8 @@ Points that matter but shouldn't block this change → tell the user they'll go 
 ## Phase 7 — Write the quick plan
 
 1. Fill `.claude/templates/quick-plan.md` placeholders.
-2. Mandatory: Summary (what's being requested, why, and what success looks like), Context (background that led to this request), Approach (high-level strategy and key technical decisions — how this will be implemented), Tasks, Key Files, Acceptance Criteria (checklist that defines "done"), QA Plan (checklist of test cases, ticked off during implementation and by `/codely.qa` if run afterward).
-3. Optional (omit a section entirely when empty): Out of Scope (what this explicitly doesn't cover), Decisions (important points confirmed by the user during the interview).
+2. Mandatory: Overview (what's being requested, why, what success looks like, and background that led to this request), Approach (high-level strategy and key technical decisions — how this will be implemented), Tasks, Key Files, Acceptance Criteria (checklist that defines "done"), QA Plan (checklist of test cases, ticked off during implementation and by `/codely.qa` if run afterward).
+3. Optional (omit a section entirely when empty): Notes (what this explicitly doesn't cover, tagged `[Out of scope]`; important points confirmed by the user during the interview, tagged `[Decision]`).
 4. Branch: `<ticketId>/<slug>/quick`, exact order.
 5. Write to `.specs/<ticketId>_<slug>/quick-plan.md`, creating the directory if needed.
 
@@ -102,6 +106,7 @@ Points that matter but shouldn't block this change → tell the user they'll go 
 4. Follow the conventions already in the files/modules you touch.
 5. Mark a task `- [x]` in `quick-plan.md` as soon as its done-criteria is met.
 6. Necessary work surfaces outside the task list → don't do it silently. Note it in `follow-up.md` (create from `.claude/templates/follow-up.md` if needed, or append) and flag it to the user.
+7. @.claude/includes/claude-md-sync.md
 
 ## Phase 11 — Verify
 

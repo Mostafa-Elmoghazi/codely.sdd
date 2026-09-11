@@ -3,25 +3,17 @@
 **Branch:** `{{ticketId}}/{{slug}}/quick`
 **Ticket ID:** `{{ticketId}}`
 
-## Summary
+## Overview
 
-{{summary}}
-
-## Context
-
-{{context}}
-
-## Out of Scope
-
-{{out_of_scope}}
+{{overview}}
 
 ## Approach
 
 {{approach}}
 
-## Decisions
+## Notes
 
-{{decisions}}
+- {{note}}
 
 ## Tasks
 
@@ -33,7 +25,7 @@
 
 ## Acceptance Criteria
 
-{{acceptance_criteria}}
+- [ ] {{criteria}}
 
 ## QA Plan
 
