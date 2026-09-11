@@ -3,40 +3,18 @@
 **Branch:** `{{ticketId}}/{{slug}}/feature`
 **Ticket ID:** `{{ticketId}}`
 
-## Summary
+## Overview
 
-{{summary}}
+{{overview}}
 
-## Context
+## Scenarios
 
-{{context}}
-
-## Out of Scope
-
-{{out_of_scope}}
-
-## User Stories
-
-{{user_stories}}
-
-## Edge Cases
-
-{{edge_cases}}
+- {{scenario}}
 
 ## Requirements
 
-### Functional
-
-{{functional_requirements}}
-
-### Non-Functional
-
-{{non_functional_requirements}}
-
-## Constraints & Assumptions
-
-{{constraints_assumptions}}
+- {{requirement}}
 
 ## Acceptance Criteria
 
-{{acceptance_criteria}}
+- [ ] {{criteria}}

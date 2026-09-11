@@ -36,6 +36,8 @@ disable-model-invocation: true
 
 ## Phase 2 — Design system discovery
 
+@.claude/includes/claude-md-read-first.md
+
 Glob/Grep/Read the codebase for existing UI conventions — layout patterns, navigation structure, component library, existing screens' markup. Found → wireframes should extend this, not invent a parallel structure (relevant for adding to an existing product). Nothing found → proceed as greenfield.
 
 ## Phase 3 — Screen inventory

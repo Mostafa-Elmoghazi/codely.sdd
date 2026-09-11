@@ -15,6 +15,8 @@ Triage `.specs/<ticketId>_<slug>/follow-up.md` one item at a time. Follow the ph
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 `follow-up.md` holds items deferred during interviews or surfaced during implementation, one `### N. {{item_title}}` entry per item with a `**Surfaced:**`/`**Description:**`/`**Status:**` block — triaged one at a time by this command.
 
 ## Context

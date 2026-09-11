@@ -37,6 +37,8 @@ disable-model-invocation: true
 
 ## Phase 2 — Design system discovery
 
+@.claude/includes/claude-md-read-first.md
+
 Glob/Grep/Read the codebase for existing design conventions — CSS variables/tokens, Tailwind or similar config, theme files, a shared component library, existing screens' markup and styling, brand colors/fonts, any style guide or Storybook. Found → this pass formalizes and extends what's real; if Phase 3's interview points somewhere that conflicts with it, flag the conflict to the user rather than silently overriding it. Nothing found → proceed fresh in Phase 3.
 
 ## Phase 3 — Theme direction (interview)

@@ -15,6 +15,8 @@ disable-model-invocation: true
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -43,6 +45,8 @@ disable-model-invocation: true
 3. `system-design.md` already exists → summarize it, AskUserQuestion — Resume/revise (edit in place, skip re-drafting from scratch) / Start over (regenerate) / Cancel.
 
 ## Phase 2 — Codebase exploration
+
+@.claude/includes/claude-md-read-first.md
 
 Glob/Grep/Read the existing codebase — current architecture, existing data models/schemas, existing API routes, existing component/class patterns. This ticket's design should extend what's real, not invent a parallel structure. Don't ask the user what the code already answers.
 

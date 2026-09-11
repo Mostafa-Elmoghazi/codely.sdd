@@ -15,6 +15,8 @@ Verify every task across the plan is complete, then work through the plan's QA P
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`

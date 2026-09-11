@@ -15,6 +15,8 @@ Turn an approved spec into a set of previewable screen mockups plus a design bre
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -43,6 +45,8 @@ Turn an approved spec into a set of previewable screen mockups plus a design bre
 3. `design.md` already exists → summarize its screens, AskUserQuestion — Resume/revise (add or revise screens, keep the rest) / Start over (regenerate all) / Cancel.
 
 ## Phase 2 — Design system discovery
+
+@.claude/includes/claude-md-read-first.md
 
 1. Glob `.sdlc/ui-template/` — present → read `tokens.css` and its screen files, and `.sdlc/ui-template.md`'s Theme Direction/Design Tokens sections; this is the project's established design system, so mockups must reuse it. Still check the live codebase (next step) too, in case real conventions have since diverged from it.
 2. Glob/Grep/Read the codebase for existing design conventions — CSS variables/tokens, Tailwind or similar config, theme files, a shared component library, existing screens' markup and styling, brand colors/fonts, any style guide or Storybook. Found (and step 1 found nothing) → mockups must reuse these, not invent a new look. Neither step found anything → say so plainly and use a neutral, unbranded placeholder style, flagged to the user as provisional.

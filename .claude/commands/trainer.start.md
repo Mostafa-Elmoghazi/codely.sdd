@@ -15,6 +15,8 @@ Act as a professional trainer. Turn a course brief into an approved curriculum â
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md

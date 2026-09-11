@@ -15,6 +15,8 @@ Act as a professional trainer. Deliver the requested (or next unfinished) lesson
 
 @.claude/includes/clarity.md
 
+@.claude/includes/no-ai-attribution.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
