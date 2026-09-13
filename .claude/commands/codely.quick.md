@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # codely.quick
 
-> **Scope guardrail:** for small, well-understood changes only — folds spec and plan into one `quick-plan.md` and skips their separate review cycles. Within `.specs/<ticketId>_<slug>/`, writes only `quick-plan.md` and, if deferred items surface, `follow-up.md`. Two chat-only approval gates — plan, then implementation — stand before any git-mutating step. Outputs are the quick plan, the application code for this change, updates to any already-existing app/package `CLAUDE.md` that change makes stale (never creates a new one — that's `/codely.sys-init`'s job), and — after both approvals — a commit history, push, and draft PR on one new branch.
+> **Scope guardrail:** for small, well-understood changes only — folds spec and plan into one `quick-plan.md` and skips their separate review cycles. Within `.specs/<ticketId>_<slug>/`, writes only `quick-plan.md` and, if deferred items surface, `follow-up.md`. Plan approval gates the Phase 9 branch creation and quick-plan commit; implementation approval gates the Phase 13 commit, push, and draft PR. Outputs are the quick plan, the application code for this change, updates to any already-existing app/package `CLAUDE.md` that change makes stale (never creates a new one — that's `/codely.sys-init`'s job), and — after both approvals — a commit history, push, and draft PR on one new branch.
 
 Turn a ticket ID + brief description directly into a reviewed, working implementation — interview, write a single-phase `quick-plan.md`, implement it, and open a draft PR, all in one run. Follow the phases in order. No git changes before the relevant approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 

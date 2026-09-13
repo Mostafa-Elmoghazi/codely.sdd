@@ -66,7 +66,7 @@ Start from the open questions raised by spec gaps + exploration findings + the P
 
 @.claude/includes/interview.md
 
-Record any "you decide" call under Decisions. Points that matter but shouldn't block these phases → tell the user they'll go to a follow-up file, and hold them for Phase 6.
+Record any "you decide" call under Notes, tagged `[Decision]`. Points that matter but shouldn't block these phases → tell the user they'll go to a follow-up file, and hold them for Phase 6.
 
 ## Phase 5 — Draft the phase breakdown
 
