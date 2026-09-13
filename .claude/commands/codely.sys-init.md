@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # codely.sys-init
 
-> **Scope guardrail:** the only command in this family allowed to write, modify, or install real project files/dependencies outside `.sdlc/`/`.specs/` — and only by executing a construction plan the user already interviewed and approved. Never runs a scaffolding/install command that isn't already listed in that phase's approved Commands. Outputs are `.sdlc/construction-plan.md` (committed to its own `sys-init/plan` branch) and, per phase thereafter, real project files/directories — including a starter `CLAUDE.md` for each new top-level app/package it scaffolds, and updates to any already-existing one a phase's changes make stale — plus a commit + push + PR on a `sys-init/<phase-slug>` branch.
+> **Scope guardrail:** the only command in this family allowed to run scaffolding or dependency-install operations outside `.sdlc/`/`.specs/`, and only ones already listed in the approved phase's Commands. (Other commands here — `/codely.quick`, `/codely.bug-fix`, `/codely.implement` — also write application files outside `.sdlc/`/`.specs/`; this guardrail is about running installer/scaffolding commands, not about writing files in general.) Outputs are `.sdlc/construction-plan.md` (committed to its own `sys-init/plan` branch) and, per phase thereafter, real project files/directories — including a starter `CLAUDE.md` for each new top-level app/package it scaffolds, and updates to any already-existing one a phase's changes make stale — plus a commit + push + PR on a `sys-init/<phase-slug>` branch.
 
 Turn the approved `.sdlc/hld.md`/`.sdlc/lld.md` into a real project structure, one reviewed phase at a time. The first run drafts and gets approval for `.sdlc/construction-plan.md` — a phased breakdown of the scaffolding work, including the exact commands each phase will run. Every later run executes the next unchecked phase: branch, scaffold, verify, approve, commit, push, PR. Re-run this command (after `/clear`) once each phase's PR is merged, until every phase is checked off. Follow the phases in order. No git changes before an approval. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
@@ -20,6 +20,10 @@ Turn the approved `.sdlc/hld.md`/`.sdlc/lld.md` into a real project structure, o
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
+
+**Codebase exploration.** Applies whenever this command reads inside an app/package directory, in either mode:
+
+@.claude/includes/claude-md-read-first.md
 
 ## Context
 

@@ -47,14 +47,14 @@ Turn an approved spec into a phased implementation plan at `.specs/<ticketId>_<s
 
 ## Phase 2 — Size the work
 
+@.claude/includes/claude-md-read-first.md
+
 1. Glob/Grep/Read the implicated codebase areas to rough-estimate files touched.
 2. Under ~10 files and low complexity: recommend `/codely.quick` instead — AskUserQuestion: switch to `/codely.quick` (stop here) / continue with a plan anyway.
 3. Still small but past that bar: AskUserQuestion — single-phase plan or multi-phase plan.
 4. Clearly larger: proceed straight to a multi-phase breakdown.
 
 ## Phase 3 — Codebase exploration
-
-@.claude/includes/claude-md-read-first.md
 
 Glob/Grep/Read the feature area(s) — existing patterns, conventions, related modules, tests. Don't ask the user what the code already answers.
 
