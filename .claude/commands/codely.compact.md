@@ -1,7 +1,7 @@
 ---
 description: Summarize this conversation to a file so you can /clear and keep going with a cheap, fresh context
 argument-hint: (none)
-allowed-tools: Read, Glob, Write, Bash(git:*), Bash(date:*)
+allowed-tools: Read, Glob, Write, Bash(git branch --show-current), Bash(date:*)
 disable-model-invocation: true
 ---
 
@@ -23,7 +23,7 @@ Summarize the entire conversation so far into one file, so a long or cache-cold 
 
 ## Phase 0 — Find the summary's home
 
-1. Current branch matches a ticket branch (`<ticketId>/<slug>/feature`, `<ticketId>/<slug>/quick`, `<ticketId>/<slug>/bug-fix`, or a phase branch `<ticketId>/<phaseSlug>`) and `.specs/<ticketId>_*` exists → the summary lives at `.specs/<ticketId>_<slug>/session-summary.md`, alongside that ticket's other docs.
+1. Current branch matches a ticket branch (`<ticketId>/<slug>/feature`, `<ticketId>/<slug>/quick`, `<ticketId>/<slug>/bug-fix`, or a phase branch `<ticketId>/<phaseSlug>`) → extract `ticketId` and resolve `.specs/<ticketId>_*` (there should be exactly one matching directory) → the summary lives at that directory's `session-summary.md`, alongside the ticket's other docs. Note that for a phase branch, `<phaseSlug>` is the phase's own slug, not the ticket directory's slug — always resolve the directory by glob, never by substituting the branch's slug into the path.
 2. Otherwise → `.claude/session-summaries/<date>-<slug>.md`, where `<slug>` is derived from the conversation's main topic (@.claude/includes/slug.md), creating the directory if needed.
 3. That file already exists (an earlier `/codely.compact` in this same thread of work) → read it first. It was the only thing carried into this conversation when it was last cleared, so anything in it still relevant must carry forward into the new summary — this file is the sole memory of everything before its own last write.
 
@@ -32,7 +32,7 @@ Summarize the entire conversation so far into one file, so a long or cache-cold 
 1. Fill `.claude/templates/session-summary.md` placeholders, drawing on the full conversation available in this context — not just the last few turns.
 2. State: the goal of this conversation and where things currently stand, written so someone with zero memory of this conversation understands it on one read.
 3. Decisions: every confirmed choice, ruled-out approach, or constraint that would otherwise get silently re-litigated once the context is gone.
-4. Key Files: files read, created, or edited that matter for picking the work back up (omit the section if nothing project-specific was touched).
+4. Key Files: files read, created, or edited that matter for picking the work back up (write "- None" if nothing project-specific was touched — never omit the section).
 5. Next Steps: the immediate next action, plus any question still open.
 6. Be exhaustive on substance, terse on wording. Nothing outside this file survives the clear the user is about to do — if it's not in the summary, it's gone.
 7. Write the file (Phase 0 already decided the mandatory sections above are the whole template — nothing here is optional).
