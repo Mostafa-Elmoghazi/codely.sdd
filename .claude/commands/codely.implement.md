@@ -31,7 +31,8 @@ Implement the next (or a specified) phase from `.specs/<ticketId>_<slug>/plan.md
 1. Read `CLAUDE.md` if present.
 2. Determine `ticketId`:
    - Current branch matches `<ticketId>/<phaseSlug>` (phase branch, two segments, no `/feature` suffix) → extract `ticketId`; remember `phaseSlug` for step 6.
-   - Current branch matches `<ticketId>/<slug>/feature` (docs branch), is trunk, or neither pattern matches → use `$ARGUMENTS`' first token if given, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, else ask. Don't guess.
+   - Current branch matches `<ticketId>/<slug>/feature` (docs branch) → extract `ticketId`. `$ARGUMENTS`' first token validates as a ticket ID per `.claude/includes/ticket-format.md` and differs → warn, AskUserQuestion (use the branch's ticket / use the typed one). A token that doesn't validate (e.g. `2`) is a phase number for step 6, never a ticket ID.
+   - Current branch is trunk, or neither pattern matches → use `$ARGUMENTS`' first token if it validates as a ticket ID, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, else ask. Don't guess.
 3. Locate `.specs/<ticketId>_*`. Missing → tell the user, stop, recommend `/codely.spec`. Found → the directory's slug is the source of truth from here on.
 4. Read `.specs/<ticketId>_<slug>/plan.md`. Missing → stop, recommend `/codely.plan`.
 5. Parse the Phases section: each phase's title, branch slug, task checkboxes.

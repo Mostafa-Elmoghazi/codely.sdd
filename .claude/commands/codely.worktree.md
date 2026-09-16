@@ -55,7 +55,7 @@ Worktree name = `<ticketId>_<slug>`; path = `ROOT/.claude/worktrees/<ticketId>_<
 
 ## Phase 3 — Guard against duplicates
 
-1. That path (or any `<ticketId>_*` sibling) already exists and is listed by `git worktree list` → don't recreate it. Run Phase 5 (idempotent) to make sure it's still marked safe, then jump to Phase 7 and report it as already existing, with its current branch.
+1. That path (or any `<ticketId>_*` sibling) already exists and is listed by `git worktree list` → don't recreate it. Run Phases 5 and 6 (both idempotent) so it's still marked safe and a failed env-file copy or dependency install from an earlier run gets retried, then go to Phase 7 and report it as already existing, with its current branch.
 2. Directory exists but isn't a registered worktree (stale leftover) → tell the user, AskUserQuestion — remove the directory and continue / cancel. Never delete without confirmation. If `git worktree list --porcelain` shows it as `prunable`, run `git worktree prune` first.
 3. `git -C ROOT check-ignore -q .claude/worktrees/` fails (not ignored) → tell the user worktrees there would show up as untracked files in the main repo, and AskUserQuestion — add `.claude/worktrees/` to `ROOT/.gitignore` (left uncommitted for them to commit) / cancel.
 

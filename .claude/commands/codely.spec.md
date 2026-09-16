@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # codely.spec
 
-> **Scope guardrail:** never writes or modifies application code, and never touches files outside `.claude/includes/ticket-format.md` and `.specs/`. Outputs are the spec file and — after approval — a new local branch with the spec committed to it; `ticket-format.md`, if drafted, is committed immediately as shared project config, independent of the spec's own approval gate. Phase 4 exploration is read-only.
+> **Scope guardrail:** never writes or modifies application code, and never touches files outside `.claude/includes/ticket-format.md`, `.claude/includes/task-tracker.md`, `.sdlc/backlog.md` (ticket Status only, per `.claude/includes/ticket-source.md`), and `.specs/`. Outputs are the spec file and — after approval — a new local branch with the spec committed to it; `ticket-format.md`, if drafted, is committed immediately as shared project config, independent of the spec's own approval gate. Phase 4 exploration is read-only.
 
 Turn a ticket ID + brief description into an approved spec under `.specs/`, then cut the ticket's local branch with the spec committed to it. Follow the phases in order. No git changes before the spec's approval, except `ticket-format.md` (Phase 1), which is shared project config committed immediately once the user confirms it. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 

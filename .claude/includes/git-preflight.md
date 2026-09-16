@@ -15,4 +15,4 @@
 1. `git status --porcelain`, disregarding the doc(s) this command just wrote in its drafting phase (and `.sdlc/backlog.md` if this run changed a ticket status in it) — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
 2. Trunk: `CLAUDE.md`'s choice, else `main`, else `master`. Ask if still ambiguous.
 3. Zero commits (`git rev-parse --verify HEAD` fails): tell the user, skip switch/pull, ask whether to branch from the unborn state or commit first.
-4. Otherwise: switch to trunk if needed; pull only if it tracks a remote. **Inside a ticket worktree** (see `.claude/includes/worktree-ticket.md`) never switch to trunk — fetch it and branch from `origin/<trunk>` per that file instead.
+4. Otherwise: switch to trunk if needed; pull only if it tracks a remote. **Inside a ticket worktree** (see `.claude/includes/worktree-ticket.md`) never switch to trunk — fetch it (only if `origin` exists) and branch from `origin/<trunk>` — or local `<trunk>` when there's no `origin` or the fetch fails — per that file instead.

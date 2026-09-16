@@ -93,12 +93,13 @@ The user asks a question mid-item → answer it, then re-ask the same item's pen
 2. For each: explore the relevant files, implement the change, follow existing conventions. A material decision isn't resolved by the item's description → don't guess: AskUserQuestion, then proceed.
 3. Verify: run the project's build/lint/test commands (`CLAUDE.md` first, then `package.json`/`Makefile`/equivalent). Failures → fix and re-run.
 4. Mark each Integrate item's Status Triaged once implemented and verified.
+5. Keep a list of every file each Integrate item changed — code, tests, config, docs — for Phase 6.
 
 ## Phase 4b — Mark the backlog ticket done
 
 @.claude/includes/ticket-source.md
 
-Completion condition for this command — both must hold: every item in `follow-up.md` is now Triaged (none Open or pending); and QA already passed — the plan document's QA Plan has every item either checked or marked Deferred, none Failed or unrecorded. Met → set the backlog row to `done`. QA not run or not passed yet → leave it and tell the user `/codely.qa` will mark it done.
+Completion condition for this command — both must hold: every item in `follow-up.md` is now Triaged (none Open or pending); and QA already passed — the plan document's QA Plan has every item either checked or marked Deferred, none Failed or unrecorded — and Phase 4 changed no application code (an Integrate change makes the earlier QA results stale). Met → set the backlog row to `done`. QA not run, not passed, or stale → leave it and tell the user to re-run `/codely.qa`, which will mark it done.
 
 ## Phase 5 — Summary
 
@@ -109,11 +110,11 @@ Completion condition for this command — both must hold: every item in `follow-
 
 Runs directly after Phase 5 — no approval gate.
 
-1. Stage `follow-up.md` plus any application files changed by Integrate items (and `.sdlc/backlog.md` if Phase 3 or 4b changed it).
-2. Commit: `Triage follow-up items for <ticketId>`.
+1. Build this run's file list: `follow-up.md`, every file on Phase 4's Integrate list, and `.sdlc/backlog.md` if Phase 3 or 4b changed it. Stage exactly those files. None of them changed (e.g. only pending promotions left unchanged) → skip steps 2–4, tell the user which items are still pending, and go to step 6.
+2. Commit only that file list, so anything the user had staged before this run stays out of the commit: `git commit -m "Triage follow-up items for <ticketId>" -- <files>`.
 3. Push the current branch.
-4. `gh` available → find the open PR for this branch, fetch its current body. No `Follow-Up Triaged` checkbox present → add `- [ ] Follow-Up Triaged` to it. Every item now Triaged (none Open or pending) → flip it to `- [x] Follow-Up Triaged`. Either way, write the updated body back via the REST API: `gh api repos/{owner}/{repo}/pulls/<number> -X PATCH -f body=<updated body>` (not `gh pr edit --body`, which drives a GraphQL mutation that can fail with a `Projects (classic)` deprecation error on repos with classic project boards). Add a PR comment summarizing dispositions (Promoted/Integrated/Dropped/Other counts, with ticket links for promoted items). `gh` unavailable → tell the user to tick it manually and share the summary.
-5. Items still pending (promotions awaiting a ticket ID) → leave the checkbox unticked, tell the user why, and that re-running `/codely.follow-up` later will finish the job.
+4. `gh` available → find the open PR for this branch, fetch its current body. No `Follow-Up Triaged` checkbox present → add `- [ ] Follow-Up Triaged` to it. Every item now Triaged (none Open or pending) → set it to `- [x] Follow-Up Triaged`; otherwise set it to `- [ ] Follow-Up Triaged`, even if it was ticked before. Integrate items changed application code and `- [x] QA Done` is ticked → flip it back to `- [ ] QA Done` and tell the user to re-run `/codely.qa`. Either way, write the updated body back via the REST API: `gh api repos/{owner}/{repo}/pulls/<number> -X PATCH -f body=<updated body>` (not `gh pr edit --body`, which drives a GraphQL mutation that can fail with a `Projects (classic)` deprecation error on repos with classic project boards). Add a PR comment summarizing dispositions (Promoted/Integrated/Dropped/Other counts, with ticket links for promoted items). `gh` unavailable → tell the user to tick it manually and share the summary. If Integrate items changed application code, also tell them to untick `QA Done` if it's ticked and re-run `/codely.qa`.
+5. Items still pending (promotions awaiting a ticket ID) → the checkbox stays unticked (step 4 unticks it if needed), tell the user why, and that re-running `/codely.follow-up` later will finish the job.
 6. Confirm: `follow-up.md` path, PR URL, summary.
 
 ## Phase 7 — Next steps

@@ -16,4 +16,4 @@
    - Input text empty → use the ticket's title (plus a short lead from its details if that helps) as the input text; tell the user what was fetched and from where before proceeding — never substitute it silently.
    - Input text given → keep it; use the ticket's details as extra context only.
    - Source is the backlog → mark the row `in progress` per `ticket-source.md`.
-4. Still missing the ticket ID and/or input text: ask the user for whatever's missing, then run step 3 for a newly given ticket ID. Don't continue without both.
+4. Still missing the ticket ID and/or input text: ask the user for whatever's missing, then run step 3 for a newly given ticket ID. The user says there's no ticket → skip step 3 and leave the ticket ID empty; Phase 1 offers the no-ticket fallback. Don't continue without the input text, and without a ticket ID or that explicit no-ticket answer.
