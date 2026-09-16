@@ -12,7 +12,7 @@
 
 **Don't start until this command's approval gate is explicit.** No git-mutating step runs before then.
 
-1. `git status --porcelain`, disregarding the doc(s) this command just wrote in its drafting phase — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
+1. `git status --porcelain`, disregarding the doc(s) this command just wrote in its drafting phase (and `.sdlc/backlog.md` if this run changed a ticket status in it) — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
 2. Trunk: `CLAUDE.md`'s choice, else `main`, else `master`. Ask if still ambiguous.
 3. Zero commits (`git rev-parse --verify HEAD` fails): tell the user, skip switch/pull, ask whether to branch from the unborn state or commit first.
-4. Otherwise: switch to trunk if needed; pull only if it tracks a remote.
+4. Otherwise: switch to trunk if needed; pull only if it tracks a remote. **Inside a ticket worktree** (see `.claude/includes/worktree-ticket.md`) never switch to trunk — fetch it and branch from `origin/<trunk>` per that file instead.

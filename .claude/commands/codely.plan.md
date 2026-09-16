@@ -35,7 +35,7 @@ Turn an approved spec into a phased implementation plan at `.specs/<ticketId>_<s
 1. Read `CLAUDE.md` if present.
 2. Current branch matches `<ticketId>/<slug>/feature` (validate `ticketId` against `.claude/includes/ticket-format.md` if present): extract `ticketId` and `slug` — this is the docs branch.
 3. Current branch matches `<ticketId>/<phaseSlug>` (two segments, no `/feature` suffix): extract `ticketId`, but note this is a phase branch, not the docs branch — it must switch back (step 5).
-4. On trunk, or neither pattern matches: use `$ARGUMENTS` as the ticket ID if given, otherwise ask the user. Don't guess.
+4. On trunk, or neither pattern matches: use `$ARGUMENTS` as the ticket ID if given, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, otherwise ask the user. Don't guess.
 5. Locate `.specs/<ticketId>_*`. Missing → tell the user no approved spec exists for this ticket, stop, recommend `/codely.spec`. Found → the directory's slug is the source of truth from here on. If not already on `<ticketId>/<slug>/feature`: dirty working tree → stop, AskUserQuestion (commit / stash / discard / abort); otherwise switch to it — it should already exist from `/codely.spec`, so warn the user before creating it if it's unexpectedly missing.
 
 ## Phase 1 — Load context

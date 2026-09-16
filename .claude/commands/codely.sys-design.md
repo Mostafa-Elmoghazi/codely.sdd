@@ -33,7 +33,7 @@ disable-model-invocation: true
 
 1. Read `CLAUDE.md` if present.
 2. Current branch matches `<ticketId>/<slug>/feature` (validate `ticketId` against `.claude/includes/ticket-format.md` if present) → extract `ticketId` and `slug` — this is the docs branch.
-3. Trunk, or non-matching branch → use `$ARGUMENTS`' first token if given, else ask. Don't guess.
+3. Trunk, or non-matching branch → use `$ARGUMENTS`' first token if given, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, else ask. Don't guess.
 4. Locate `.specs/<ticketId>_*`. Missing → tell the user, stop, recommend `/codely.spec`. Found → the directory's slug is the source of truth from here on.
 5. `.specs/<ticketId>_<slug>/spec.md` missing → stop, tell the user `/codely.sys-design` needs an approved spec first, recommend `/codely.spec`.
 6. Not already on `<ticketId>/<slug>/feature` → dirty working tree → stop, AskUserQuestion (commit / stash / discard / abort); otherwise switch to it.

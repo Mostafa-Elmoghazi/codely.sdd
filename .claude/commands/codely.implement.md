@@ -31,7 +31,7 @@ Implement the next (or a specified) phase from `.specs/<ticketId>_<slug>/plan.md
 1. Read `CLAUDE.md` if present.
 2. Determine `ticketId`:
    - Current branch matches `<ticketId>/<phaseSlug>` (phase branch, two segments, no `/feature` suffix) → extract `ticketId`; remember `phaseSlug` for step 6.
-   - Current branch matches `<ticketId>/<slug>/feature` (docs branch), is trunk, or neither pattern matches → use `$ARGUMENTS`' first token if given, else ask. Don't guess.
+   - Current branch matches `<ticketId>/<slug>/feature` (docs branch), is trunk, or neither pattern matches → use `$ARGUMENTS`' first token if given, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, else ask. Don't guess.
 3. Locate `.specs/<ticketId>_*`. Missing → tell the user, stop, recommend `/codely.spec`. Found → the directory's slug is the source of truth from here on.
 4. Read `.specs/<ticketId>_<slug>/plan.md`. Missing → stop, recommend `/codely.plan`.
 5. Parse the Phases section: each phase's title, branch slug, task checkboxes.
@@ -53,7 +53,7 @@ Implement the next (or a specified) phase from `.specs/<ticketId>_<slug>/plan.md
 
 1. `git status --porcelain`. Dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
 2. Determine the base per `plan.md`'s sequencing rule: trunk (`CLAUDE.md`'s choice, else `main`, else `master`) if this is the first phase or the previous phase's branch is already merged into trunk; otherwise the previous phase's branch. Check "merged" via `git branch --merged <trunk>` or, if `gh` is available, the previous phase's PR state.
-3. Fetch/pull the base if it tracks a remote.
+3. Fetch/pull the base if it tracks a remote. Inside a ticket worktree, don't check out trunk — fetch it and use `origin/<trunk>` as the base (see `.claude/includes/worktree-ticket.md`).
 4. Create/checkout `<ticketId>/<phaseSlug>` from that base. Already exists → check it out, note commits ahead of base (resuming).
 
 ## Phase 3 — Codebase exploration

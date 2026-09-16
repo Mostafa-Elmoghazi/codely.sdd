@@ -28,13 +28,18 @@ Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working 
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
+- Task tracker config present: !`test -f .claude/includes/task-tracker.md && echo yes || echo no`
 - `gh` CLI available: !`gh --version >/dev/null 2>&1 && echo yes || echo no`
 
 ## Phase 0 — Resolve inputs
 
-1. Read `CLAUDE.md` if present.
-2. `$ARGUMENTS` non-empty: first token (minus trailing `:`) = ticket ID, rest = bug description.
-3. `$ARGUMENTS` empty: ask the user for both. Don't continue without them.
+**Input text** for this command = the bug description.
+
+@.claude/includes/resolve-ticket-inputs.md
+
+@.claude/includes/worktree-ticket.md
+
+@.claude/includes/ticket-source.md
 
 ## Phase 1 — Load the ticket ID format
 
@@ -51,6 +56,8 @@ Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working 
 3. Found, with `bug-fix-plan.md` → read + summarize it, AskUserQuestion — Resume/revise (reuse slug, skip reproduction/investigation) / Start over (reuse slug, redo reproduction/investigation) / Cancel. Either way skip Phase 3 and reuse the existing slug.
 
 ## Phase 3 — Generate the slug (new tickets only)
+
+Inside a ticket worktree, skip this phase — reuse the worktree's slug.
 
 @.claude/includes/slug.md
 
@@ -112,7 +119,7 @@ Read-only exploration — don't ask the user what the code and its history alrea
 @.claude/includes/git-preflight.md
 
 5. Create/checkout `<ticketId>/<slug>/bug-fix`. If it already exists, check it out and note how far ahead of trunk it is.
-6. Stage and commit `bug-fix-plan.md` (and `follow-up.md` if created): `Add bug-fix plan for <ticketId>`.
+6. Stage and commit `bug-fix-plan.md` (and `follow-up.md` if created) plus `.sdlc/backlog.md` if this run changed its status: `Add bug-fix plan for <ticketId>`.
 7. Don't push yet — implementation is still pending.
 
 ## Phase 12 — Regression test (red)

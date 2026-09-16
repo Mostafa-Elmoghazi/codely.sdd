@@ -112,17 +112,26 @@ Turn the approved design into a real, running project structure, one reviewed ph
 - **Next:** re-run `/codely.sys-init` until every phase is checked off, then `/codely.spec` per ticket
 
 #### `/codely.backlog [optional focus area or notes]`
-Turn the approved design into a proposed ticket backlog — one entry per ticket, each assigned a ticket ID that follows `.claude/includes/ticket-format.md` (prefix derived from the project name), traceable to the SRS's requirements and the LLD's components/endpoints, grouped into dependency-ordered waves. Draft-only: never calls a real tracker's API. Create the actual tickets on your team's board from this list, using the IDs shown.
+Turn the approved design into a proposed ticket backlog — one entry per ticket, each assigned a ticket ID that follows `.claude/includes/ticket-format.md` (prefix derived from the project name), traceable to the SRS's requirements and the LLD's components/endpoints, grouped into dependency-ordered waves. Every ticket gets a Status (`to do` by default). Never calls a real tracker's API. With a task tracker configured (`.claude/includes/task-tracker.md`), create the actual tickets on that board using the IDs shown. Without one, the backlog is the tracker: ticket commands read tickets from it and move their Status to `in progress` / `done` automatically.
 - **Reads:** `hld.md`, `lld.md`, `srs.md`, `use-case-model.md`, `project-charter.md`/`project-plan.md` (if present), `.claude/includes/ticket-format.md`
 - **Writes:** `.sdlc/backlog.md` (and `.claude/includes/ticket-format.md` on first run, if you ask it to draft one)
-- **Next:** create tickets on your board with these IDs, then `/codely.spec TICKET-ID description` per ticket
+- **Next:** with a tracker, create tickets on your board with these IDs; then `/codely.spec TICKET-ID` (or `/codely.worktree TICKET-ID` first) per ticket
+
+### Ticket Worktrees (optional)
+
+#### `/codely.worktree <ticket-id>`
+Set a ticket up in its own git worktree so several tickets can be worked on side by side. Looks the ticket up in the task tracker (or `.sdlc/backlog.md`), builds `<ticketId>_<slug>`, and creates `.claude/worktrees/<ticketId>_<slug>/` on a new `TICKET-ID/slug/feature` branch cut from `origin/<trunk>`. Adds the directory to git's `safe.directory` when git requires it, copies local `.env` files, and installs dependencies. Inside the worktree, every ticket command picks the ticket ID up from the directory name — no need to type it.
+- **Reads:** `.claude/includes/ticket-format.md`, `.claude/includes/task-tracker.md` / `.sdlc/backlog.md`
+- **Writes:** the worktree directory; a global `safe.directory` entry if needed
+- **Git:** `git worktree add` with a new local branch (no commit, no push)
+- **Next:** `cd` into the worktree, start `claude`, then `/codely.spec`, `/codely.quick`, `/codely.bug-fix`, or `/codely.investigate` with no arguments
 
 ### Ticket Lifecycle — Multi-Phase Flow
 
 Per ticket, under `.specs/TICKET-ID_slug/`. For anything substantial enough to warrant its own spec, design review, and a phased implementation.
 
 #### `/codely.spec [ticket-id] [brief description]`
-Turn a ticket ID + brief description into an approved spec (Summary, Context, Functional Requirements, Acceptance Criteria, and more), then cut the ticket's branch. Drafts `.claude/includes/ticket-format.md` on first use if it doesn't exist yet, and validates the ticket ID against it.
+Turn a ticket ID + brief description into an approved spec (Summary, Context, Functional Requirements, Acceptance Criteria, and more), then cut the ticket's branch. Drafts `.claude/includes/ticket-format.md` on first use if it doesn't exist yet, and validates the ticket ID against it. The description is optional — it's read from the task tracker or `.sdlc/backlog.md` (asking which one on first use); a backlog ticket moves to `in progress`.
 - **Writes:** `.specs/TICKET-ID_slug/spec.md`
 - **Git:** creates `TICKET-ID/slug/feature`, commits `spec.md` to it (no push)
 - **Next:** `/codely.sys-design` and/or `/codely.ui` (both optional), or straight to `/codely.plan`
@@ -156,17 +165,17 @@ Implement one phase of the approved plan, verify it (build/lint/test, and exerci
 - **Next:** repeat for each remaining phase, then `/codely.qa`
 
 #### `/codely.qa [ticket-id]`
-Verify every task across the plan is complete, then walk the plan's QA Plan checklist against the implementation — running what's machine-verifiable itself, walking the rest with you. Verifies only; on any failure it stops and reports rather than fixing anything.
+Verify every task across the plan is complete, then walk the plan's QA Plan checklist against the implementation — running what's machine-verifiable itself, walking the rest with you one check at a time (what's tested, how to test it, the expected result). Verifies only; on any failure it stops and reports rather than fixing anything. No approval step at the end; a backlog ticket moves to `done` once QA passes and no follow-up items are open.
 - **Reads:** `spec.md`, `system-design.md`/`design.md`/`follow-up.md` (if present), the full plan document
 - **Writes:** QA results into the plan document
 - **Git:** commits the plan document, pushes, ticks `QA Done` on the PR, marks it ready for review — only once nothing has Failed
 - **Next:** `/codely.follow-up` if `follow-up.md` has open items, otherwise get the PR merged
 
 #### `/codely.follow-up [ticket-id]`
-Triage `follow-up.md` one item at a time: **Promote** (create a real ticket, via a connected task tracker if available), **Integrate** (fold a small change into this PR now), **Drop** (with a reason), or **Other** (your call).
+Triage `follow-up.md` one item at a time, with a recommendation for each: **Promote** (create a real ticket, via a connected task tracker if available, or a new `.sdlc/backlog.md` row when the backlog is the tracker), **Integrate** (fold a small change into this PR now), **Drop** (with a reason), or anything else you type. Whatever a decision needs — a drop reason, a ticket draft — is asked right after it, before the next item. No approval step at the end; a backlog ticket moves to `done` once every item is resolved and QA has passed.
 - **Reads:** `spec.md`, the plan document
 - **Writes:** `follow-up.md`; application code for any Integrate items
-- **Git:** commits, pushes, ticks `Follow-Up Triaged` once every item is resolved
+- **Git:** commits, pushes, ticks `Follow-Up Triaged` once every item is resolved — no approval gate
 - **Next:** get the PR reviewed and merged
 
 #### `/codely.address-review [ticket-id]`
@@ -225,6 +234,7 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 ├── codely.qa.md            ← /codely.qa — verifies an implementation against its spec/plan
 ├── codely.follow-up.md     ← /codely.follow-up — captures post-delivery feedback and next steps
 ├── codely.address-review.md ← /codely.address-review — fetch a PR's unresolved review threads, then fix/reply/resolve each in one gateless pass
+├── codely.worktree.md      ← /codely.worktree — create a ticket's git worktree + feature branch so ticket commands need no ticket ID
 ├── codely.bug-fix.md       ← /codely.bug-fix — reproduce, root-cause, and fix a reported bug behind a red→green regression test
 ├── codely.ui.md            ← /codely.ui — approved spec to previewable screen mockups + design breakdown
 ├── sdlc.plan.md            ← /sdlc.plan — SDLC planning phase: idea → approved project charter + project plan
@@ -254,7 +264,8 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 └── curriculum.md         ← course curriculum template (lettered modules/numbered lessons), used by /trainer.start
 
 .claude/includes/
-└── ticket-format.md     ← per-project ticket ID pattern/regex — drafted on first use by /codely.spec, /codely.quick, or /codely.bug-fix
+├── ticket-format.md     ← per-project ticket ID pattern/regex — drafted on first use by /codely.spec, /codely.quick, or /codely.bug-fix
+└── task-tracker.md      ← per-project: which task tracker (and project) holds tickets, or `Not used` → .sdlc/backlog.md is the tracker — drafted on first use by any ticket command
 ```
 
 ## Conventions
@@ -262,7 +273,8 @@ Deliver one lesson — a self-contained `lesson.html` (explanation, examples, co
 The essentials — see [WORKFLOW.md](./WORKFLOW.md)'s Cross-Cutting Conventions section for the full detail:
 
 - **`.sdlc/`** holds project-wide artifacts (SDLC phases + `codely.wireframe`/`codely.ui-template`/`codely.sys-init`/`codely.backlog`'s output). **`.specs/TICKET-ID_slug/`** holds one ticket's artifacts. **`.courses/course-slug/`** holds one course's curriculum + lessons (`trainer.*`), entirely separate from the SDLC/Implementation flows. Never mixed.
-- **No git changes before approval**, everywhere — every artifact-producing phase ends in a chat-only review before any branch/commit/push. The sole exception is `/codely.address-review`, which runs its whole fix → push → reply → resolve pass without a gate by design, asking only when a fix turns on a material decision.
+- **No git changes before approval**, everywhere — every artifact-producing phase ends in a chat-only review before any branch/commit/push. The exceptions are `/codely.address-review`, which runs its whole fix → push → reply → resolve pass without a gate by design, asking only when a fix turns on a material decision, and `/codely.qa` / `/codely.follow-up`, which commit, push, and tick their PR checkbox directly since every result or decision was already yours.
+- **One ticket source** — tickets come from the task tracker named in `.claude/includes/task-tracker.md`, or from `.sdlc/backlog.md` when none is used (then its Status column tracks `to do` → `in progress` → `done`). Never both.
 - **Resumable by design** — `/clear` mid-flow and re-run the same command; interview artifacts resume via a `## Status` topic checklist, phased/task artifacts resume via `- [ ]` task checkboxes.
 - **`QA Done`** and **`Follow-Up Triaged`** are PR checkboxes ticked only by `/codely.qa` and `/codely.follow-up` respectively, gating that PR's merge where they apply.
 - **`gh` CLI is optional** — every push/PR step falls back to manual instructions if it's unavailable.

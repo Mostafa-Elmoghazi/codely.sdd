@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # codely.investigate
 
-> **Scope guardrail:** never writes or modifies application code, and never touches files outside `.claude/includes/ticket-format.md` and `.specs/<ticketId>_<slug>/` (only `investigation.md` and `summary.md`, plus `follow-up.md` if deferred items surface). Any prototype or experiment runs entirely inside the session scratchpad and is deleted before the doc is written — only its findings survive, as evidence. Codebase and web exploration are read-only. One chat-only gate — the decision — stands before any git-mutating step. `ticket-format.md`, if drafted, is committed immediately as shared project config, independent of the decision.
+> **Scope guardrail:** never writes or modifies application code, and never touches files outside `.claude/includes/ticket-format.md`, `.claude/includes/task-tracker.md`, and `.specs/<ticketId>_<slug>/` (only `investigation.md` and `summary.md`, plus `follow-up.md` if deferred items surface). Any prototype or experiment runs entirely inside the session scratchpad and is deleted before the doc is written — only its findings survive, as evidence. Codebase and web exploration are read-only. One chat-only gate — the decision — stands before any git-mutating step. `ticket-format.md` / `task-tracker.md`, if drafted, are committed immediately as shared project config, independent of the decision.
 
 Turn a ticket ID + a question about a proposed piece of work into an evidence-backed **investigation** under `.specs/`, ending in one of four verdicts: **Proceed**, **Proceed with conditions**, **Do not proceed**, **Needs more investigation**. This runs _before_ `/codely.spec` whenever there's real uncertainty about whether or how the work should be done; a Proceed verdict feeds the spec. It produces a decision-support document only — no spec, no plan, no code. Follow the phases in order. No git changes before the decision, except the shared-config files noted above. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
@@ -28,12 +28,17 @@ Turn a ticket ID + a question about a proposed piece of work into an evidence-ba
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
+- Task tracker config present: !`test -f .claude/includes/task-tracker.md && echo yes || echo no`
 
 ## Phase 0 — Resolve inputs
 
-1. Read `CLAUDE.md` if present.
-2. `$ARGUMENTS` non-empty: first token (minus trailing `:`) = ticket ID, rest = the question / proposed work.
-3. `$ARGUMENTS` empty, or missing the ticket ID and/or the question: ask the user for whatever's missing. Don't continue without both.
+**Input text** for this command = the question / proposed work.
+
+@.claude/includes/resolve-ticket-inputs.md
+
+@.claude/includes/worktree-ticket.md
+
+@.claude/includes/ticket-source.md
 
 ## Phase 1 — Load the ticket ID format
 
@@ -51,6 +56,8 @@ Turn a ticket ID + a question about a proposed piece of work into an evidence-ba
 4. **Found with `spec.md` or `plan.md` but no `investigation.md`:** the work is already past the investigation stage — tell the user, AskUserQuestion — investigate anyway (a genuinely new open question about the same ticket) / cancel and point them at the existing spec/plan.
 
 ## Phase 3 — Generate the slug (new tickets only)
+
+Inside a ticket worktree, skip this phase — reuse the worktree's slug.
 
 @.claude/includes/slug.md
 
@@ -135,13 +142,13 @@ Record any "you decide" call. Points that matter but sit outside this decision �
 
 **Don't start until Phase 11's verdict is explicit.**
 
-1. `git status --porcelain`, disregarding `investigation.md` / `summary.md` / `follow-up.md` just written — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
+1. `git status --porcelain`, disregarding `investigation.md` / `summary.md` / `follow-up.md` just written (and `.sdlc/backlog.md` if this run changed its status) — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort). Never auto-act.
 2. Trunk: `CLAUDE.md`'s choice, else `main`, else `master`. Ask if still ambiguous.
 3. Zero commits (`git rev-parse --verify HEAD` fails): tell the user, skip switch/pull, ask whether to branch from the unborn state or commit first.
 4. Branch by verdict — never commit `investigation.md` straight to trunk:
-   - **Proceed** / **Proceed with conditions:** switch to trunk if needed (pull only if it tracks a remote), then create/checkout `<ticketId>/<slug>/feature` — the ticket's docs branch, so `/codely.spec` continues on it. If it already exists, check it out and note how far ahead of trunk it is.
+   - **Proceed** / **Proceed with conditions:** switch to trunk if needed (pull only if it tracks a remote; inside a ticket worktree don't switch — you're already on the ticket branch, see `.claude/includes/worktree-ticket.md`), then create/checkout `<ticketId>/<slug>/feature` — the ticket's docs branch, so `/codely.spec` continues on it. If it already exists, check it out and note how far ahead of trunk it is.
    - **Do not proceed** / **Needs more investigation:** AskUserQuestion — preserve on a `<ticketId>/<slug>/investigation` branch (create/checkout it) / leave `investigation.md` and `summary.md` uncommitted for the user to handle / discard them.
-5. On a preserve path: stage only `investigation.md` and `summary.md` (and `follow-up.md` if created), commit `Add investigation for <ticketId>`. Never push.
+5. On a preserve path: stage only `investigation.md` and `summary.md` (and `follow-up.md` if created) plus `.sdlc/backlog.md` if this run changed its status, commit `Add investigation for <ticketId>`. Never push.
 6. Confirm: investigation path, summary path, verdict, current branch. Then:
    - **Proceed:** run `/clear`, then `/codely.spec` — the investigation's recommended option and findings are the spec's starting point.
    - **Proceed with conditions:** same, and tell the user to carry the conditions into the spec's Requirements, tagged `[Constraint]`.
