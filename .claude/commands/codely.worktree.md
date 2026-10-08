@@ -9,7 +9,7 @@ disable-model-invocation: true
 
 > **Scope guardrail:** never writes application code, specs, or plans, and never commits or pushes. Outputs are a linked git worktree at `.claude/worktrees/<ticketId>_<slug>/` on a new local `<ticketId>/<slug>/feature` branch, a `safe.directory` entry for it in the user's global git config (only when git requires one), copies of the main worktree's local `.env` files, and installed dependencies. Everything else in the main worktree is left untouched — including uncommitted changes and the checked-out branch.
 
-Turn a ticket ID into an isolated, ready-to-work worktree, so the user can `cd` into it and run any `codely.*` command (`/codely.spec`, `/codely.quick`, `/codely.bug-fix`, `/codely.investigate`, …) without typing the ticket ID — those commands read it from the worktree's directory name. Follow the phases in order. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
+Turn a ticket ID into an isolated, ready-to-work worktree, so the user can `cd` into it and run any `codely.*` command (`/codely.spec`, `/codely.quick`, `/codely.bug-fix`, `/codely.investigate`, …) without typing the ticket ID — those commands read it from the worktree's directory name. Running a ticket command from the main project folder works too: when its ticket (typed, or picked from the list of worktrees) has a worktree, the command moves the session into that worktree and does its work there. Follow the phases in order. If a `CLAUDE.md` exists, it overrides this file wherever they conflict.
 
 **Plain-language standard.** Applies to every question this command asks:
 
@@ -44,7 +44,7 @@ Found → show the user the ticket ID, title, and where it came from (the tracke
 
 Reuse an existing slug for this ticket if there is one — first match wins:
 
-1. An existing worktree directory `ROOT/.claude/worktrees/<ticketId>_*` → go straight to Phase 3 step 1.
+1. An existing worktree directory `ROOT/.claude/worktrees/<ticketId>` or `ROOT/.claude/worktrees/<ticketId>_*` → go straight to Phase 3 step 1.
 2. `ROOT/.specs/<ticketId>_*` → its slug.
 3. A local or remote branch `<ticketId>/<slug>/<kind>` (`git branch -a --list "*<ticketId>/*"`; exact ticket ID match only — `PROJ-1` must not match `PROJ-10`; ignore two-segment phase branches `<ticketId>/<phaseSlug>`, whose slug is a phase's, not the ticket's) → its slug. Several different slugs → AskUserQuestion.
 4. Otherwise generate it from the ticket title:
@@ -55,7 +55,7 @@ Worktree name = `<ticketId>_<slug>`; path = `ROOT/.claude/worktrees/<ticketId>_<
 
 ## Phase 3 — Guard against duplicates
 
-1. That path (or any `<ticketId>_*` sibling) already exists and is listed by `git worktree list` → don't recreate it. Run Phases 5 and 6 (both idempotent) so it's still marked safe and a failed env-file copy or dependency install from an earlier run gets retried, then go to Phase 7 and report it as already existing, with its current branch.
+1. That path (or a `<ticketId>` / `<ticketId>_*` sibling) already exists and is listed by `git worktree list` → don't recreate it. Run Phases 5 and 6 (both idempotent) so it's still marked safe and a failed env-file copy or dependency install from an earlier run gets retried, then go to Phase 7 and report it as already existing, with its current branch.
 2. Directory exists but isn't a registered worktree (stale leftover) → tell the user, AskUserQuestion — remove the directory and continue / cancel. Never delete without confirmation. If `git worktree list --porcelain` shows it as `prunable`, run `git worktree prune` first.
 3. `git -C ROOT check-ignore -q .claude/worktrees/` fails (not ignored) → tell the user worktrees there would show up as untracked files in the main repo, and AskUserQuestion — add `.claude/worktrees/` to `ROOT/.gitignore` (left uncommitted for them to commit) / cancel.
 
@@ -98,4 +98,4 @@ Then tell the user how to start:
 cd <abs path> && claude
 ```
 
-…and that inside it they can run `/codely.spec`, `/codely.quick`, `/codely.bug-fix`, or `/codely.investigate` with no ticket ID — the ticket is read from the worktree name. When the ticket is merged, clean up from the main worktree with `git worktree remove .claude/worktrees/<ticketId>_<slug>`.
+…and that inside it they can run `/codely.spec`, `/codely.quick`, `/codely.bug-fix`, or `/codely.investigate` with no ticket ID — the ticket is read from the worktree name. Or, from the main folder, any ticket command given `<ticketId>` (or run with no ID and this worktree picked from the list) switches into the worktree and works there. When the ticket is merged, clean up from the main worktree with `git worktree remove .claude/worktrees/<worktree folder>`.

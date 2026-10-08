@@ -1,7 +1,7 @@
 ---
 description: Triage a ticket's follow-up items one at a time — promote, integrate, drop, or defer to the user
 argument-hint: [ticket-id]
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash
+allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash, EnterWorktree, ExitWorktree
 disable-model-invocation: true
 ---
 
@@ -17,12 +17,15 @@ Triage `.specs/<ticketId>_<slug>/follow-up.md` one item at a time. Follow the ph
 
 @.claude/includes/no-ai-attribution.md
 
+@.claude/includes/git-message-format.md
+
 `follow-up.md` holds items deferred during interviews or surfaced during implementation, one `### N. {{item_title}}` entry per item with a `**Surfaced:**`/`**Description:**`/`**Status:**` block — triaged one at a time by this command.
 
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
+- Worktrees: !`git worktree list 2>/dev/null || echo "(none)"`
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
@@ -30,8 +33,10 @@ Triage `.specs/<ticketId>_<slug>/follow-up.md` one item at a time. Follow the ph
 
 ## Phase 0 — Resolve the ticket and follow-up file
 
+@.claude/includes/worktree-ticket.md
+
 1. Read `CLAUDE.md` if present.
-2. Determine `ticketId`: current branch matches a phase branch `<ticketId>/<phaseSlug>`, a quick branch `<ticketId>/<slug>/quick`, a bug-fix branch `<ticketId>/<slug>/bug-fix`, or a docs branch `<ticketId>/<slug>/feature` → extract it. Trunk, or neither pattern matches → use `$ARGUMENTS` if given, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, else ask. Don't guess.
+2. Determine `ticketId`, first match wins: `$ARGUMENTS`' first token → inside a ticket worktree, the worktree's ticket ID → the current branch, when it's a phase branch `<ticketId>/<phaseSlug>`, a quick branch `<ticketId>/<slug>/quick`, a bug-fix branch `<ticketId>/<slug>/bug-fix`, or a docs branch `<ticketId>/<slug>/feature` → otherwise ask. Don't guess.
 3. Locate `.specs/<ticketId>_*`. Missing → stop, tell the user there's nothing to triage for this ticket.
 4. `.specs/<ticketId>_<slug>/follow-up.md` missing → tell the user there are no follow-up items for this ticket, stop.
 5. Parse each item's Status: Open / Promoted (pending ticket ID) / Triaged.
@@ -111,7 +116,7 @@ Completion condition for this command — both must hold: every item in `follow-
 Runs directly after Phase 5 — no approval gate.
 
 1. Build this run's file list: `follow-up.md`, every file on Phase 4's Integrate list, and `.sdlc/backlog.md` if Phase 3 or 4b changed it. Stage exactly those files. None of them changed (e.g. only pending promotions left unchanged) → skip steps 2–4, tell the user which items are still pending, and go to step 6.
-2. Commit only that file list, so anything the user had staged before this run stays out of the commit: `git commit -m "Triage follow-up items for <ticketId>" -- <files>`.
+2. Commit only that file list, so anything the user had staged before this run stays out of the commit: `git commit -m "<ticketId>: Triage follow-up items" -- <files>`.
 3. Push the current branch.
 4. `gh` available → find the open PR for this branch, fetch its current body. No `Follow-Up Triaged` checkbox present → add `- [ ] Follow-Up Triaged` to it. Every item now Triaged (none Open or pending) → set it to `- [x] Follow-Up Triaged`; otherwise set it to `- [ ] Follow-Up Triaged`, even if it was ticked before. Integrate items changed application code and `- [x] QA Done` is ticked → flip it back to `- [ ] QA Done` and tell the user to re-run `/codely.qa`. Either way, write the updated body back via the REST API: `gh api repos/{owner}/{repo}/pulls/<number> -X PATCH -f body=<updated body>` (not `gh pr edit --body`, which drives a GraphQL mutation that can fail with a `Projects (classic)` deprecation error on repos with classic project boards). Add a PR comment summarizing dispositions (Promoted/Integrated/Dropped/Other counts, with ticket links for promoted items). `gh` unavailable → tell the user to tick it manually and share the summary. If Integrate items changed application code, also tell them to untick `QA Done` if it's ticked and re-run `/codely.qa`.
 5. Items still pending (promotions awaiting a ticket ID) → the checkbox stays unticked (step 4 unticks it if needed), tell the user why, and that re-running `/codely.follow-up` later will finish the job.

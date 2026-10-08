@@ -1,7 +1,7 @@
 ---
 description: Summarize this conversation to a file so you can /clear and keep going with a cheap, fresh context
 argument-hint: (none)
-allowed-tools: Read, Glob, Write, Bash(git branch --show-current), Bash(date:*)
+allowed-tools: Read, Glob, Write, Bash(git branch --show-current), Bash(git worktree list:*), Bash(git rev-parse:*), Bash(date:*)
 disable-model-invocation: true
 ---
 
@@ -18,14 +18,16 @@ Summarize the entire conversation so far into one file, so a long or cache-cold 
 ## Context
 
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
+- Worktrees: !`git worktree list 2>/dev/null || echo "(none)"`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Today's date: !`date +%Y-%m-%d`
 
 ## Phase 0 — Find the summary's home
 
 1. Current branch matches a ticket branch (`<ticketId>/<slug>/feature`, `<ticketId>/<slug>/quick`, `<ticketId>/<slug>/bug-fix`, or a phase branch `<ticketId>/<phaseSlug>`) → extract `ticketId` and resolve `.specs/<ticketId>_*` (there should be exactly one matching directory) → the summary lives at that directory's `session-summary.md`, alongside the ticket's other docs. Note that for a phase branch, `<phaseSlug>` is the phase's own slug, not the ticket directory's slug — always resolve the directory by glob, never by substituting the branch's slug into the path.
-2. Otherwise → `.claude/session-summaries/<date>-<slug>.md`, where `<slug>` is derived from the conversation's main topic (@.claude/includes/slug.md), creating the directory if needed.
-3. That file already exists (an earlier `/codely.compact` in this same thread of work) → read it first. It was the only thing carried into this conversation when it was last cleared, so anything in it still relevant must carry forward into the new summary — this file is the sole memory of everything before its own last write.
+2. Current branch isn't a ticket branch, but this conversation worked on one ticket that has a ticket worktree (as defined in `.claude/includes/worktree-ticket.md`; Context lists the worktrees) → the summary lives in that worktree, at its `.specs/<ticketId>_*/session-summary.md` (absolute path), next to the docs it describes. Don't switch the session there — this command only writes one file.
+3. Otherwise → `.claude/session-summaries/<date>-<slug>.md`, where `<slug>` is derived from the conversation's main topic (@.claude/includes/slug.md), creating the directory if needed.
+4. That file already exists (an earlier `/codely.compact` in this same thread of work) → read it first. It was the only thing carried into this conversation when it was last cleared, so anything in it still relevant must carry forward into the new summary — this file is the sole memory of everything before its own last write.
 
 ## Phase 1 — Write the summary
 

@@ -1,7 +1,7 @@
 ---
 description: Turn an approved spec into a phased implementation plan and open it for review
 argument-hint: [ticket-id]
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash(git:*), Bash(gh:*)
+allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash(git:*), Bash(gh:*), EnterWorktree, ExitWorktree
 disable-model-invocation: true
 ---
 
@@ -17,6 +17,8 @@ Turn an approved spec into a phased implementation plan at `.specs/<ticketId>_<s
 
 @.claude/includes/no-ai-attribution.md
 
+@.claude/includes/git-message-format.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -25,6 +27,7 @@ Turn an approved spec into a phased implementation plan at `.specs/<ticketId>_<s
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
+- Worktrees: !`git worktree list 2>/dev/null || echo "(none)"`
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
@@ -32,11 +35,11 @@ Turn an approved spec into a phased implementation plan at `.specs/<ticketId>_<s
 
 ## Phase 0 — Resolve the ticket
 
+@.claude/includes/worktree-ticket.md
+
 1. Read `CLAUDE.md` if present.
-2. Current branch matches `<ticketId>/<slug>/feature` (validate `ticketId` against `.claude/includes/ticket-format.md` if present): extract `ticketId` and `slug` — this is the docs branch.
-3. Current branch matches `<ticketId>/<phaseSlug>` (two segments, no `/feature` suffix): extract `ticketId`, but note this is a phase branch, not the docs branch — it must switch back (step 5).
-4. On trunk, or neither pattern matches: use `$ARGUMENTS` as the ticket ID if given, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, otherwise ask the user. Don't guess.
-5. Locate `.specs/<ticketId>_*`. Missing → tell the user no approved spec exists for this ticket, stop, recommend `/codely.spec`. Found → the directory's slug is the source of truth from here on. If not already on `<ticketId>/<slug>/feature`: dirty working tree → stop, AskUserQuestion (commit / stash / discard / abort); otherwise switch to it — it should already exist from `/codely.spec`, so warn the user before creating it if it's unexpectedly missing.
+2. Determine `ticketId`, first match wins (validate against `.claude/includes/ticket-format.md` if present): `$ARGUMENTS`' first token → inside a ticket worktree, the worktree's ticket ID → the current branch, when it's the docs branch `<ticketId>/<slug>/feature` or a phase branch `<ticketId>/<phaseSlug>` (two segments, no `/feature` suffix — not the docs branch, so step 3 switches back) → otherwise ask the user. Don't guess.
+3. Locate `.specs/<ticketId>_*`. Missing → tell the user no approved spec exists for this ticket, stop, recommend `/codely.spec`. Found → the directory's slug is the source of truth from here on. If not already on `<ticketId>/<slug>/feature`: dirty working tree → stop, AskUserQuestion (commit / stash / discard / abort); otherwise switch to it — it should already exist from `/codely.spec`, so warn the user before creating it if it's unexpectedly missing.
 
 ## Phase 1 — Load context
 
@@ -99,7 +102,7 @@ Record any "you decide" call under Notes, tagged `[Decision]`. Points that matte
 **Don't start until Phase 8 approval is explicit.**
 
 1. Stage only the plan file(s) written above (`plan.md`, `follow-up.md` if created).
-2. Commit: `Add implementation plan for <ticketId>`.
+2. Commit: `<ticketId>: Add implementation plan`.
 3. Push the current (docs) branch, setting upstream if it has none.
-4. Trunk = `CLAUDE.md`'s choice, else `main`, else `master`. `gh` available → `gh pr create --draft` (base = trunk, head = the docs branch, title referencing the ticket, body noting this reviews the spec + plan docs only, no code changes). `gh` unavailable → tell the user to push and open the PR manually.
+4. Trunk = `CLAUDE.md`'s choice, else `main`, else `master`. `gh` available → `gh pr create --draft` (base = trunk, head = the docs branch, title `<ticketId>: <ticket title>`, body noting this reviews the spec + plan docs only, no code changes). `gh` unavailable → tell the user to push and open the PR manually.
 5. Confirm: plan path, PR URL (or manual-PR instructions). Tell the user: get this PR approved, then run `/clear` then `/codely.implement`.

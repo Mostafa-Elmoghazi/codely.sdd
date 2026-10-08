@@ -6,12 +6,13 @@
   The including command states, right above the include, what its **input text** is
   (e.g. "the brief description", "the bug description", "the question / proposed work");
   every mention of "input text" below means that.
-  Also @-include .claude/includes/worktree-ticket.md and .claude/includes/ticket-source.md
-  right after this block — their rules are referenced in steps 2-3.
+  @-include .claude/includes/worktree-ticket.md right BEFORE this block (its Step 0 picks the
+  folder — a ticket worktree or the main project folder — that everything below runs in), and
+  .claude/includes/ticket-source.md right after it — their rules are referenced in steps 2-3.
 -->
 
-1. Read `CLAUDE.md` if present.
-2. `$ARGUMENTS` non-empty: first token (minus trailing `:`) = ticket ID, rest = input text. Inside a ticket worktree, the rules in `.claude/includes/worktree-ticket.md` override this and step 4 — the ticket ID comes from the worktree, never from asking.
+1. Read `CLAUDE.md` if present (in the folder Step 0 picked).
+2. `$ARGUMENTS` non-empty: first token (minus trailing `:`) = ticket ID, rest = input text. Inside a ticket worktree (including one Step 0 just switched into), the rules in `.claude/includes/worktree-ticket.md` override this and step 4 — the ticket ID comes from the worktree, never from asking.
 3. Ticket ID present → resolve the ticket from its source, per `.claude/includes/ticket-source.md` (tracker or `.sdlc/backlog.md`; a tracker whose MCP connection is missing is reported and skipped — carry on with the typed input text, or ask for it).
    - Input text empty → use the ticket's title (plus a short lead from its details if that helps) as the input text; tell the user what was fetched and from where before proceeding — never substitute it silently.
    - Input text given → keep it; use the ticket's details as extra context only.

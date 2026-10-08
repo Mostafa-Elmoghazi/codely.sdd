@@ -1,7 +1,7 @@
 ---
 description: Turn an approved spec into previewable screen mockups and a design breakdown
 argument-hint: [ticket-id]
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash(git:*), Artifact
+allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash(git:*), Artifact, EnterWorktree, ExitWorktree
 disable-model-invocation: true
 ---
 
@@ -17,6 +17,8 @@ Turn an approved spec into a set of previewable screen mockups plus a design bre
 
 @.claude/includes/no-ai-attribution.md
 
+@.claude/includes/git-message-format.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -25,18 +27,20 @@ Turn an approved spec into a set of previewable screen mockups plus a design bre
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
+- Worktrees: !`git worktree list 2>/dev/null || echo "(none)"`
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
 
 ## Phase 0 — Resolve the ticket
 
+@.claude/includes/worktree-ticket.md
+
 1. Read `CLAUDE.md` if present.
-2. Current branch matches `<ticketId>/<slug>/feature` (validate `ticketId` against `.claude/includes/ticket-format.md` if present) → extract `ticketId` and `slug` — this is the docs branch.
-3. Trunk, or non-matching branch → use `$ARGUMENTS`' first token if given, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, else ask. Don't guess.
-4. Locate `.specs/<ticketId>_*`. Missing → tell the user, stop, recommend `/codely.spec`. Found → the directory's slug is the source of truth from here on.
-5. `.specs/<ticketId>_<slug>/spec.md` missing → stop, tell the user `/codely.ui` needs an approved spec first, recommend `/codely.spec`.
-6. Not already on `<ticketId>/<slug>/feature` → dirty working tree → stop, AskUserQuestion (commit / stash / discard / abort); otherwise switch to it.
+2. Determine `ticketId`, first match wins (validate against `.claude/includes/ticket-format.md` if present): `$ARGUMENTS`' first token → inside a ticket worktree, the worktree's ticket ID → the current branch, when it's the docs branch `<ticketId>/<slug>/feature` → otherwise ask. Don't guess.
+3. Locate `.specs/<ticketId>_*`. Missing → tell the user, stop, recommend `/codely.spec`. Found → the directory's slug is the source of truth from here on.
+4. `.specs/<ticketId>_<slug>/spec.md` missing → stop, tell the user `/codely.ui` needs an approved spec first, recommend `/codely.spec`.
+5. Not already on `<ticketId>/<slug>/feature` → dirty working tree → stop, AskUserQuestion (commit / stash / discard / abort); otherwise switch to it.
 
 ## Phase 1 — Load context
 
@@ -94,6 +98,6 @@ For each screen confirmed in Phase 3:
 
 1. `git status --porcelain`, disregarding `design.md`/`design/` just written in Phase 6 — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort).
 2. Stage `design.md` and the `design/` directory.
-3. Commit: `Add UI design for <ticketId>`.
+3. Commit: `<ticketId>: Add UI design`.
 4. Don't push — `/codely.plan`'s existing push step will carry this commit along with `plan.md` into one PR reviewing spec + design + plan together.
 5. Confirm: `design.md` path, screen files, and that the published Artifact preview links are a session convenience only (may expire or be revoked) — the committed `design/*.html` files are the durable output. Tell the user to run `/clear` then `/codely.plan` next.
