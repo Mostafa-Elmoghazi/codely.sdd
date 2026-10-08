@@ -1,7 +1,7 @@
 ---
 description: Verify plan completion and walk the QA Plan against the implementation, then tick QA Done and mark the PR ready for review
 argument-hint: [ticket-id]
-allowed-tools: Read, Glob, Grep, Edit, AskUserQuestion, Bash
+allowed-tools: Read, Glob, Grep, Edit, AskUserQuestion, Bash, EnterWorktree, ExitWorktree
 disable-model-invocation: true
 ---
 
@@ -17,10 +17,13 @@ Verify every task across the plan is complete, then work through the plan's QA P
 
 @.claude/includes/no-ai-attribution.md
 
+@.claude/includes/git-message-format.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
+- Worktrees: !`git worktree list 2>/dev/null || echo "(none)"`
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
@@ -28,8 +31,10 @@ Verify every task across the plan is complete, then work through the plan's QA P
 
 ## Phase 0 — Resolve the ticket and plan document
 
+@.claude/includes/worktree-ticket.md
+
 1. Read `CLAUDE.md` if present.
-2. Determine `ticketId`: current branch matches a phase branch `<ticketId>/<phaseSlug>`, a quick branch `<ticketId>/<slug>/quick`, a bug-fix branch `<ticketId>/<slug>/bug-fix`, or a docs branch `<ticketId>/<slug>/feature` → extract it. Trunk, or neither pattern matches → use `$ARGUMENTS` if given, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, else ask. Don't guess.
+2. Determine `ticketId`, first match wins: `$ARGUMENTS`' first token → inside a ticket worktree, the worktree's ticket ID → the current branch, when it's a phase branch `<ticketId>/<phaseSlug>`, a quick branch `<ticketId>/<slug>/quick`, a bug-fix branch `<ticketId>/<slug>/bug-fix`, or a docs branch `<ticketId>/<slug>/feature` → otherwise ask. Don't guess.
 3. Locate `.specs/<ticketId>_*`. Missing → stop, recommend `/codely.spec`, `/codely.quick`, or `/codely.bug-fix`.
 4. The directory has `quick-plan.md` → that's the plan document for this run. Else it has `bug-fix-plan.md` → that's the plan document (its Verification section's checklist items are this run's QA Plan). Else it has `plan.md` → that's the plan document. Neither → stop, tell the user to run `/codely.plan`, `/codely.quick`, or `/codely.bug-fix` first.
 5. Parse every task across every phase (or the single phase, for `quick-plan.md`). Any unchecked → tell the user which, AskUserQuestion — stop and finish implementation first (recommend `/codely.implement`) / proceed with QA anyway (confirm — unusual).
@@ -106,7 +111,7 @@ Completion condition for this command — all must hold: no QA item Failed; ever
 **Don't start until Phase 6 clears with no failures.** Then run straight through — no approval step: commit, push, tick `QA Done`, and mark the PR ready without asking.
 
 1. `git status --porcelain`, disregarding the plan document just edited in Phase 5 (and `.sdlc/backlog.md` if Phase 5b changed it) — anything else dirty → stop, AskUserQuestion (commit / stash / discard / abort).
-2. Stage and commit the plan document (plus `.sdlc/backlog.md` if Phase 5b changed it): `Record QA results for <ticketId>`.
+2. Stage and commit the plan document (plus `.sdlc/backlog.md` if Phase 5b changed it): `<ticketId>: Record QA results`.
 3. Push the current branch.
 4. `gh` available → find the open PR for this branch, fetch its current body, flip `- [ ] QA Done` to `- [x] QA Done` within it, and write the updated body back via the REST API: `gh api repos/{owner}/{repo}/pulls/<number> -X PATCH -f body=<updated body>` (not `gh pr edit --body`, which drives a GraphQL mutation that can fail with a `Projects (classic)` deprecation error on repos with classic project boards). This is the checkbox that gates the merge — tick it only now that Phase 6 has cleared.
 5. Add a QA summary comment (`gh pr comment`) — Passed/Failed/Deferred counts, deferred items listed explicitly.

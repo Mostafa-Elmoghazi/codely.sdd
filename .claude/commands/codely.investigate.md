@@ -1,7 +1,7 @@
 ---
 description: Investigate and evaluate a proposed piece of work before committing to it — produce a recommendation, not code or a plan
 argument-hint: [ticket-id] [question or proposed work]
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, WebFetch, WebSearch, Bash
+allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, WebFetch, WebSearch, Bash, EnterWorktree, ExitWorktree
 disable-model-invocation: true
 ---
 
@@ -17,6 +17,8 @@ Turn a ticket ID + a question about a proposed piece of work into an evidence-ba
 
 @.claude/includes/no-ai-attribution.md
 
+@.claude/includes/git-message-format.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -25,6 +27,7 @@ Turn a ticket ID + a question about a proposed piece of work into an evidence-ba
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
+- Worktrees: !`git worktree list 2>/dev/null || echo "(none)"`
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
@@ -34,9 +37,9 @@ Turn a ticket ID + a question about a proposed piece of work into an evidence-ba
 
 **Input text** for this command = the question / proposed work.
 
-@.claude/includes/resolve-ticket-inputs.md
-
 @.claude/includes/worktree-ticket.md
+
+@.claude/includes/resolve-ticket-inputs.md
 
 @.claude/includes/ticket-source.md
 
@@ -57,7 +60,7 @@ Turn a ticket ID + a question about a proposed piece of work into an evidence-ba
 
 ## Phase 3 — Generate the slug (new tickets only)
 
-Inside a ticket worktree, skip this phase — reuse the worktree's slug.
+Inside a ticket worktree whose slug is known (see `.claude/includes/worktree-ticket.md`), skip this phase — reuse that slug.
 
 @.claude/includes/slug.md
 
@@ -148,7 +151,7 @@ Record any "you decide" call. Points that matter but sit outside this decision �
 4. Branch by verdict — never commit `investigation.md` straight to trunk:
    - **Proceed** / **Proceed with conditions:** switch to trunk if needed (pull only if it tracks a remote; inside a ticket worktree don't switch — you're already on the ticket branch, see `.claude/includes/worktree-ticket.md`), then create/checkout `<ticketId>/<slug>/feature` — the ticket's docs branch, so `/codely.spec` continues on it. If it already exists, check it out and note how far ahead of trunk it is.
    - **Do not proceed** / **Needs more investigation:** AskUserQuestion — preserve on a `<ticketId>/<slug>/investigation` branch (create/checkout it) / leave `investigation.md` and `summary.md` uncommitted for the user to handle / discard them.
-5. On a **Proceed** / **Proceed with conditions** branch, or a preserve path: stage only `investigation.md` and `summary.md` (and `follow-up.md` if created) plus `.sdlc/backlog.md` if this run changed its status, commit `Add investigation for <ticketId>`. Never push.
+5. On a **Proceed** / **Proceed with conditions** branch, or a preserve path: stage only `investigation.md` and `summary.md` (and `follow-up.md` if created) plus `.sdlc/backlog.md` if this run changed its status, commit `<ticketId>: Add investigation`. Never push.
 6. Confirm: investigation path, summary path, verdict, current branch. Then:
    - **Proceed:** run `/clear`, then `/codely.spec` — the investigation's recommended option and findings are the spec's starting point.
    - **Proceed with conditions:** same, and tell the user to carry the conditions into the spec's Requirements, tagged `[Constraint]`.

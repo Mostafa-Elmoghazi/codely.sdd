@@ -1,7 +1,7 @@
 ---
 description: Implement one phase of an approved plan, verify it, and open it as a PR
 argument-hint: [ticket-id] [phase-number]
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash
+allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash, EnterWorktree, ExitWorktree
 disable-model-invocation: true
 ---
 
@@ -17,10 +17,13 @@ Implement the next (or a specified) phase from `.specs/<ticketId>_<slug>/plan.md
 
 @.claude/includes/no-ai-attribution.md
 
+@.claude/includes/git-message-format.md
+
 ## Context
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
+- Worktrees: !`git worktree list 2>/dev/null || echo "(none)"`
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
@@ -28,11 +31,10 @@ Implement the next (or a specified) phase from `.specs/<ticketId>_<slug>/plan.md
 
 ## Phase 0 — Resolve the ticket and target phase
 
+@.claude/includes/worktree-ticket.md
+
 1. Read `CLAUDE.md` if present.
-2. Determine `ticketId`:
-   - Current branch matches `<ticketId>/<phaseSlug>` (phase branch, two segments, no `/feature` suffix) → extract `ticketId`; remember `phaseSlug` for step 6.
-   - Current branch matches `<ticketId>/<slug>/feature` (docs branch) → extract `ticketId`. `$ARGUMENTS`' first token validates as a ticket ID per `.claude/includes/ticket-format.md` and differs → warn, AskUserQuestion (use the branch's ticket / use the typed one). A token that doesn't validate (e.g. `2`) is a phase number for step 6, never a ticket ID.
-   - Current branch is trunk, or neither pattern matches → use `$ARGUMENTS`' first token if it validates as a ticket ID, else — inside a ticket worktree (see `.claude/includes/worktree-ticket.md`) — the worktree's ticket ID, else ask. Don't guess.
+2. Determine `ticketId`, first match wins: `$ARGUMENTS`' first token, if it validates as a ticket ID per `.claude/includes/ticket-format.md` (a token that doesn't, e.g. `2`, is a phase number for step 6, never a ticket ID) → inside a ticket worktree, the worktree's ticket ID → the current branch, when it's a phase branch `<ticketId>/<phaseSlug>` (two segments, no `/feature` suffix) or the docs branch `<ticketId>/<slug>/feature` → otherwise ask. Don't guess. The current branch is a phase branch of this ticket → remember its `phaseSlug` for step 6.
 3. Locate `.specs/<ticketId>_*`. Missing → tell the user, stop, recommend `/codely.spec`. Found → the directory's slug is the source of truth from here on.
 4. Read `.specs/<ticketId>_<slug>/plan.md`. Missing → stop, recommend `/codely.plan`.
 5. Parse the Phases section: each phase's title, branch slug, task checkboxes.
@@ -90,11 +92,11 @@ Read the phase's Key Files, then Glob/Grep the surrounding area for conventions,
 **Don't start until Phase 6 approval is explicit.**
 
 1. Stage the changed application files plus `plan.md` (and `follow-up.md` if updated).
-2. Commit. Default to one commit for the phase; split further only if the tasks are genuinely separable and the user prefers that. Message: `Implement <phase title> for <ticketId>`.
+2. Commit. Default to one commit for the phase; split further only if the tasks are genuinely separable and the user prefers that. Message: `<ticketId>: Implement <phase title>` (every commit, if split).
 3. Push the phase branch, setting upstream if it has none.
 4. Check `plan.md` for unchecked tasks in any _other_ phase. None remain → this is the last phase; the PR body must include a `- [ ] QA Done` checkbox (unchecked, ticked by `/codely.qa` once QA passes, gates the merge — QA runs once for the whole plan, not per phase). Other phases still have unchecked tasks → omit the checkbox entirely from this PR's body.
 5. This is the last phase (per step 4) and `follow-up.md` exists with any Open or pending items → the PR body must also include a `- [ ] Follow-Up Triaged` checkbox (unchecked, ticked by `/codely.follow-up` once every item is resolved). Not the last phase, or no `follow-up.md`/items yet → omit it; `/codely.follow-up` adds it later if needed.
-6. `gh` available → `gh pr create --draft` (base = the branch from Phase 2, head = the phase branch, title referencing ticket + phase, body linking back to the plan's phase section, plus the `QA Done` and/or `Follow-Up Triaged` checkboxes per steps 4-5 if applicable). `gh` unavailable → tell the user to push and open the PR manually, including the checkboxes per steps 4-5 if applicable.
+6. `gh` available → `gh pr create --draft` (base = the branch from Phase 2, head = the phase branch, title `<ticketId>: <phase number> - <phase title>`, body linking back to the plan's phase section, plus the `QA Done` and/or `Follow-Up Triaged` checkboxes per steps 4-5 if applicable). `gh` unavailable → tell the user to push and open the PR manually, including the checkboxes per steps 4-5 if applicable.
 7. Confirm: files changed, commit(s), PR URL (or manual-PR instructions), and which gate checkboxes this PR carries.
 
 ## Phase 8 — Next steps

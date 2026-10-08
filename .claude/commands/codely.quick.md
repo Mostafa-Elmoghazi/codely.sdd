@@ -1,7 +1,7 @@
 ---
 description: Interview, plan, implement, and open a draft PR for a small well-understood change — no separate spec or plan review
 argument-hint: [ticket-id] [brief description]
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash
+allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash, EnterWorktree, ExitWorktree
 disable-model-invocation: true
 ---
 
@@ -17,6 +17,8 @@ Turn a ticket ID + brief description directly into a reviewed, working implement
 
 @.claude/includes/no-ai-attribution.md
 
+@.claude/includes/git-message-format.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -25,6 +27,7 @@ Turn a ticket ID + brief description directly into a reviewed, working implement
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
+- Worktrees: !`git worktree list 2>/dev/null || echo "(none)"`
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
@@ -35,9 +38,9 @@ Turn a ticket ID + brief description directly into a reviewed, working implement
 
 **Input text** for this command = the brief description.
 
-@.claude/includes/resolve-ticket-inputs.md
-
 @.claude/includes/worktree-ticket.md
+
+@.claude/includes/resolve-ticket-inputs.md
 
 @.claude/includes/ticket-source.md
 
@@ -57,7 +60,7 @@ Turn a ticket ID + brief description directly into a reviewed, working implement
 
 ## Phase 3 — Generate the slug (new tickets only)
 
-Inside a ticket worktree, skip this phase — reuse the worktree's slug.
+Inside a ticket worktree whose slug is known (see `.claude/includes/worktree-ticket.md`), skip this phase — reuse that slug.
 
 @.claude/includes/slug.md
 
@@ -102,7 +105,7 @@ Points that matter but shouldn't block this change → tell the user they'll go 
 @.claude/includes/git-preflight.md
 
 5. Create/checkout `<ticketId>/<slug>/quick`. If it already exists, check it out and note how far ahead of trunk it is.
-6. Stage and commit `quick-plan.md` (and `follow-up.md` if created) plus `.sdlc/backlog.md` if this run changed its status: `Add quick plan for <ticketId>`.
+6. Stage and commit `quick-plan.md` (and `follow-up.md` if created) plus `.sdlc/backlog.md` if this run changed its status: `<ticketId>: Add quick plan`.
 7. Don't push yet — implementation is still pending.
 
 ## Phase 10 — Implement the tasks
@@ -133,10 +136,10 @@ Points that matter but shouldn't block this change → tell the user they'll go 
 **Don't start until Phase 12 approval is explicit.**
 
 1. Stage the changed application files plus `quick-plan.md` (checkbox updates).
-2. Commit: `Implement <ticketId>: <title>`.
+2. Commit: `<ticketId>: Implement <title>`.
 3. Push the branch, setting upstream if it has none.
 4. `follow-up.md` exists with any Open or pending items → the PR body must also include a `- [ ] Follow-Up Triaged` checkbox (unchecked, ticked by `/codely.follow-up` once every item is resolved). No `follow-up.md`, or no items yet → omit it; `/codely.follow-up` adds it later if needed.
-5. Trunk = `CLAUDE.md`'s choice, else `main`, else `master`. `gh` available → `gh pr create --draft` (base = trunk, head = `<ticketId>/<slug>/quick`, title referencing the ticket, body linking to `quick-plan.md`, noting this is a combined plan + implementation PR, and including a `- [ ] QA Done` checkbox plus the `- [ ] Follow-Up Triaged` checkbox per step 4 if applicable). `gh` unavailable → tell the user to push and open the PR manually, including the same checkboxes.
+5. Trunk = `CLAUDE.md`'s choice, else `main`, else `master`. `gh` available → `gh pr create --draft` (base = trunk, head = `<ticketId>/<slug>/quick`, title `<ticketId>: <ticket title>`, body linking to `quick-plan.md`, noting this is a combined plan + implementation PR, and including a `- [ ] QA Done` checkbox plus the `- [ ] Follow-Up Triaged` checkbox per step 4 if applicable). `gh` unavailable → tell the user to push and open the PR manually, including the same checkboxes.
 6. Confirm: quick-plan path, files changed, commit(s), PR URL (or manual-PR instructions), and which gate checkboxes this PR carries.
 
 ## Phase 14 — Next steps

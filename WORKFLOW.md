@@ -215,19 +215,19 @@ flowchart TD
 gitGraph
     commit id: "Initial commit"
     branch "TICKET-ID/slug/feature"
-    commit id: "Add spec"
-    commit id: "Add system design"
-    commit id: "Add UI design"
-    commit id: "Add implementation plan"
+    commit id: "TICKET-ID: Add spec"
+    commit id: "TICKET-ID: Add system design"
+    commit id: "TICKET-ID: Add UI design"
+    commit id: "TICKET-ID: Add implementation plan"
     checkout main
     merge "TICKET-ID/slug/feature" tag: "docs PR merged"
     branch "TICKET-ID/phase-1-slug"
-    commit id: "Implement phase 1"
+    commit id: "TICKET-ID: Implement phase 1"
     checkout main
     merge "TICKET-ID/phase-1-slug" tag: "phase 1 PR merged"
     branch "TICKET-ID/phase-2-slug"
-    commit id: "Implement phase 2"
-    commit id: "Record QA results"
+    commit id: "TICKET-ID: Implement phase 2"
+    commit id: "TICKET-ID: Record QA results"
     checkout main
     merge "TICKET-ID/phase-2-slug" tag: "phase 2 PR merged, QA Done"
 ```
@@ -291,8 +291,9 @@ These hold across every command in the family:
 - **Resumability is built in, two ways.** Multi-topic interview artifacts (`sdlc.*`'s charter/plan/SRS/use-case-model/HLD/LLD) track a `## Status` checklist of interview topics, checked off as each is resolved. Phased execution artifacts (`plan.md`, `quick-plan.md`, `bug-fix-plan.md`, `construction-plan.md`) track progress as `- [ ]` task checkboxes within each phase instead. Either way, `/clear`-ing and re-running the same command picks up exactly where you left off rather than re-asking settled questions.
 - **`/codely.compact` resets a long or cache-cold conversation.** It's not tied to a phase — run it any time a conversation has grown expensive to keep alive. It writes a `session-summary.md` (next to the ticket's other docs if one is active, else under `.claude/session-summaries/`), prints it for a sanity check, then tells you to run `/clear` and point the fresh conversation at that file. It can't run `/clear` itself — no command can; that's CLI-only.
 - **One question at a time in walk-throughs.** `/codely.qa` presents each manual check on its own (`Check 3 of 9`), with what's being tested, how to test it, and the expected result in plain language, before asking Passed / Failed / Defer. `/codely.follow-up` presents each item on its own (`Item 2 of 5`) with a recommendation, and asks whatever that decision needs (a drop reason, a ticket draft) right after it — before showing the next item.
-- **`/codely.worktree <ticket-id>` isolates a ticket.** Run it from the main checkout: it looks the ticket up (tracker or backlog), creates a git worktree at `.claude/worktrees/<ticketId>_<slug>/` on a new `<ticketId>/<slug>/feature` branch cut from `origin/<trunk>`, adds it to git's `safe.directory` when git requires it, copies local `.env` files, and installs dependencies. `cd` into it and start `claude` there, then any ticket command (`/codely.spec`, `/codely.quick`, `/codely.bug-fix`, `/codely.investigate`, `/codely.plan`, …) reads the ticket ID and slug from the worktree name (see `.claude/includes/worktree-ticket.md`), so you don't type it. Inside a worktree, commands never check out trunk (it's checked out in the main folder); they branch from `origin/<trunk>` instead, and `/quick` or `/bug-fix` renames the still-empty `/feature` branch rather than leaving it behind.
+- **`/codely.worktree <ticket-id>` isolates a ticket.** Run it from the main checkout: it looks the ticket up (tracker or backlog), creates a git worktree at `.claude/worktrees/<ticketId>_<slug>/` on a new `<ticketId>/<slug>/feature` branch cut from `origin/<trunk>`, adds it to git's `safe.directory` when git requires it, copies local `.env` files, and installs dependencies. `cd` into it and start `claude` there, then any ticket command (`/codely.spec`, `/codely.quick`, `/codely.bug-fix`, `/codely.investigate`, `/codely.plan`, …) reads the ticket ID and slug from the worktree name (see `.claude/includes/worktree-ticket.md`), so you don't type it. Inside a worktree, commands never check out trunk (it's checked out in the main folder); they branch from `origin/<trunk>` instead, and `/quick` or `/bug-fix` renames the still-empty `/feature` branch rather than leaving it behind. Folders named just `<ticketId>` count too. You can also stay in the main folder: a ticket command whose ticket has a worktree (typed as an argument, taken from the current branch, or picked from a list when no ID is given) moves the session into that worktree and works there; tickets without one keep working in the main folder.
 - **PR gating checkboxes.** `- [ ] QA Done` (ticked only by `/codely.qa`, only once nothing's Failed) and `- [ ] Follow-Up Triaged` (ticked only by `/codely.follow-up`, only once every item is resolved) appear in a PR body when applicable and are meant to gate that PR's merge.
+- **Commit and PR names carry the ticket ID.** Every ticket commit is `<ticketId>: <message>` (e.g. `PROJ-12: Add spec`); a phase PR from `/codely.implement` is `<ticketId>: <phase number> - <phase title>`, and any other ticket PR is `<ticketId>: <title text>` (see `.claude/includes/git-message-format.md`). A `CLAUDE.md` naming rule overrides it.
 - **No AI attribution, ever.** Every commit message and PR title/body this family writes is clean of it — no "Co-Authored-By" line naming an AI, no "Generated with" note, nothing implying an AI wrote it — regardless of any global tool default that would otherwise add one.
 - **`gh` CLI is optional.** Every push/PR step checks for it first; if it's unavailable, the command tells you exactly what to push and what PR to open manually instead of failing.
 - **`CLAUDE.md` wins.** Trunk branch name, build/lint/test commands, and any other project-specific convention: if `CLAUDE.md` exists and says otherwise, it overrides what's described here.

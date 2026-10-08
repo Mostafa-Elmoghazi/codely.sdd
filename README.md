@@ -120,11 +120,11 @@ Turn the approved design into a proposed ticket backlog — one entry per ticket
 ### Ticket Worktrees (optional)
 
 #### `/codely.worktree <ticket-id>`
-Set a ticket up in its own git worktree so several tickets can be worked on side by side. Looks the ticket up in the task tracker (or `.sdlc/backlog.md`), builds `<ticketId>_<slug>`, and creates `.claude/worktrees/<ticketId>_<slug>/` on a new `TICKET-ID/slug/feature` branch cut from `origin/<trunk>`. Adds the directory to git's `safe.directory` when git requires it, copies local `.env` files, and installs dependencies. Inside the worktree, every ticket command picks the ticket ID up from the directory name — no need to type it.
+Set a ticket up in its own git worktree so several tickets can be worked on side by side. Looks the ticket up in the task tracker (or `.sdlc/backlog.md`), builds `<ticketId>_<slug>`, and creates `.claude/worktrees/<ticketId>_<slug>/` on a new `TICKET-ID/slug/feature` branch cut from `origin/<trunk>`. Adds the directory to git's `safe.directory` when git requires it, copies local `.env` files, and installs dependencies. Inside the worktree, every ticket command picks the ticket ID up from the directory name — no need to type it. Worktree folders named just `<ticketId>` (e.g. made by hand) are recognised too. From the main project folder, a ticket command whose ticket has a worktree (typed as an argument, taken from the current branch, or picked from a list of worktrees when no ID is given) moves the session into that worktree and does its work there; tickets without a worktree keep working in the main folder.
 - **Reads:** `.claude/includes/ticket-format.md`, `.claude/includes/task-tracker.md` / `.sdlc/backlog.md`
 - **Writes:** the worktree directory; a global `safe.directory` entry if needed
 - **Git:** `git worktree add` with a new local branch (no commit, no push)
-- **Next:** `cd` into the worktree, start `claude`, then `/codely.spec`, `/codely.quick`, `/codely.bug-fix`, or `/codely.investigate` with no arguments
+- **Next:** `cd` into the worktree, start `claude`, then `/codely.spec`, `/codely.quick`, `/codely.bug-fix`, or `/codely.investigate` with no arguments — or stay in the main folder and run them with the ticket ID
 
 ### Ticket Lifecycle — Multi-Phase Flow
 
@@ -182,7 +182,7 @@ Triage `follow-up.md` one item at a time, with a recommendation for each: **Prom
 Fetch every unresolved review thread on the current branch's PR, then address each one in a single pass — a code fix, a reply-only answer, or a reasoned rebuttal — and push, reply, and resolve on GitHub. **No chat approval gate**; built to run right after a PR gets its first round of comments. Threads it disagrees with are replied to but left unresolved for the reviewer. Like `/codely.qa` and `/codely.follow-up`, it's flow-agnostic — works on a Multi-Phase, Quick, or Bug-Fix PR. Requires `gh`.
 - **Reads:** the PR's review threads (via `gh`), `spec.md`, `system-design.md`/`design.md`, the plan document, `follow-up.md` (if present)
 - **Writes:** application code for fixes; `follow-up.md` (if new deferred items surface)
-- **Git:** one commit `Address review comments for <ticketId>` on the existing PR branch, pushed; one reply per thread; resolves every fixed or answered thread
+- **Git:** one commit `<ticketId>: Address review comments` on the existing PR branch, pushed; one reply per thread; resolves every fixed or answered thread
 - **Next:** re-run after the reviewer responds to any unresolved threads; `/codely.qa` if code changed after QA already ran; otherwise back to the reviewer
 
 ### Alternate Entry Points

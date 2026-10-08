@@ -1,7 +1,7 @@
 ---
 description: Reproduce a reported bug, confirm its root cause, plan and implement a fix proven by a regression test, and open a draft PR
 argument-hint: [ticket-id] [brief description]
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash
+allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Bash, EnterWorktree, ExitWorktree
 disable-model-invocation: true
 ---
 
@@ -17,6 +17,8 @@ Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working 
 
 @.claude/includes/no-ai-attribution.md
 
+@.claude/includes/git-message-format.md
+
 **Document authoring.** Applies to every file this command writes from a template:
 
 @.claude/includes/authoring.md
@@ -25,6 +27,7 @@ Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working 
 
 - Working tree status: !`git status --porcelain 2>/dev/null || echo "(not a git repository, or git unavailable)"`
 - Current branch: !`git branch --show-current 2>/dev/null || echo "(none — repository may have zero commits)"`
+- Worktrees: !`git worktree list 2>/dev/null || echo "(none)"`
 - Repository has commits: !`git rev-parse --verify HEAD >/dev/null 2>&1 && echo yes || echo no`
 - `.specs/` contents: !`ls -1 .specs 2>/dev/null || echo "(.specs/ does not exist yet)"`
 - Ticket-format config present: !`test -f .claude/includes/ticket-format.md && echo yes || echo no`
@@ -35,9 +38,9 @@ Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working 
 
 **Input text** for this command = the bug description.
 
-@.claude/includes/resolve-ticket-inputs.md
-
 @.claude/includes/worktree-ticket.md
+
+@.claude/includes/resolve-ticket-inputs.md
 
 @.claude/includes/ticket-source.md
 
@@ -57,7 +60,7 @@ Turn a ticket ID + bug report into a reproduced, root-caused, reviewed, working 
 
 ## Phase 3 — Generate the slug (new tickets only)
 
-Inside a ticket worktree, skip this phase — reuse the worktree's slug.
+Inside a ticket worktree whose slug is known (see `.claude/includes/worktree-ticket.md`), skip this phase — reuse that slug.
 
 @.claude/includes/slug.md
 
@@ -119,7 +122,7 @@ Read-only exploration — don't ask the user what the code and its history alrea
 @.claude/includes/git-preflight.md
 
 5. Create/checkout `<ticketId>/<slug>/bug-fix`. If it already exists, check it out and note how far ahead of trunk it is.
-6. Stage and commit `bug-fix-plan.md` (and `follow-up.md` if created) plus `.sdlc/backlog.md` if this run changed its status: `Add bug-fix plan for <ticketId>`.
+6. Stage and commit `bug-fix-plan.md` (and `follow-up.md` if created) plus `.sdlc/backlog.md` if this run changed its status: `<ticketId>: Add bug-fix plan`.
 7. Don't push yet — implementation is still pending.
 
 ## Phase 12 — Regression test (red)
@@ -130,7 +133,7 @@ The proof that this fix works starts here, before any fix code is touched.
 2. Run it in isolation. It must fail. Confirm the failure reason matches the confirmed root cause, not a setup error or typo in the test itself — if it fails for the wrong reason, fix the test and re-run.
 3. Genuinely not testable in an automated way (per Phase 7's note, or discovered only now) → mark the plan's Regression Test subsection "Not applicable — <reason>," tell the user, and rely on Manual Verification instead (Phase 14). Skip to Phase 13.
 4. Capture the failing output verbatim.
-5. Stage and commit _only_ the test: `Add regression test for <ticketId> (reproduces bug, currently failing)`. This commit is the durable, independently-checkable proof that the test fails without the fix.
+5. Stage and commit _only_ the test: `<ticketId>: Add regression test (reproduces bug, currently failing)`. This commit is the durable, independently-checkable proof that the test fails without the fix.
 6. Record the test reference, this commit's SHA, and the failing output in `bug-fix-plan.md`'s Verification → Regression Test → "Before fix (red)".
 
 ## Phase 13 — Implement the fix (green)
@@ -162,10 +165,10 @@ The proof that this fix works starts here, before any fix code is touched.
 **Don't start until Phase 15 approval is explicit.**
 
 1. Stage the changed application files plus `bug-fix-plan.md` (task checkboxes, Verification updates). The regression test was already committed separately in Phase 12 — don't re-stage it here unless it changed since.
-2. Commit: `Fix <ticketId>: <title>` — the exact message referenced in the plan doc's Verification → Regression Test → "After fix (green)".
+2. Commit: `<ticketId>: Fix <title>` — the exact message referenced in the plan doc's Verification → Regression Test → "After fix (green)".
 3. Push the branch, setting upstream if it has none.
 4. `follow-up.md` exists with any Open or pending items → the PR body must also include a `- [ ] Follow-Up Triaged` checkbox. No `follow-up.md`, or no items yet → omit it.
-5. Trunk = `CLAUDE.md`'s choice, else `main`, else `master`. `gh` available → `gh pr create --draft` (base = trunk, head = `<ticketId>/<slug>/bug-fix`, title referencing the ticket, body summarizing Problem/Root Cause/Fix from `bug-fix-plan.md`, noting the two-commit red→green proof with the regression-test commit's SHA, and including a `- [ ] QA Done` checkbox plus the `- [ ] Follow-Up Triaged` checkbox per step 4 if applicable). `gh` unavailable → tell the user to push and open the PR manually, including the same checkboxes.
+5. Trunk = `CLAUDE.md`'s choice, else `main`, else `master`. `gh` available → `gh pr create --draft` (base = trunk, head = `<ticketId>/<slug>/bug-fix`, title `<ticketId>: Fix <title>`, body summarizing Problem/Root Cause/Fix from `bug-fix-plan.md`, noting the two-commit red→green proof with the regression-test commit's SHA, and including a `- [ ] QA Done` checkbox plus the `- [ ] Follow-Up Triaged` checkbox per step 4 if applicable). `gh` unavailable → tell the user to push and open the PR manually, including the same checkboxes.
 6. Confirm: plan path, files changed, both commits (test SHA + fix commit), PR URL (or manual-PR instructions), and which gate checkboxes this PR carries.
 
 ## Phase 17 — Next steps
